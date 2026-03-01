@@ -1,79 +1,105 @@
 import Link from 'next/link';
-import { ArrowDownTrayIcon, ShieldCheckIcon, ClockIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image'; // Importamos componente de imagen optimizado
+import { ArrowDownTrayIcon, ShieldCheckIcon, BoltIcon } from '@heroicons/react/24/outline';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Navbar simple */}
-      <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto w-full">
-        <div className="text-2xl font-bold text-green-600">PocketGuard</div>
-        <Link href="/terminos" className="text-gray-600 hover:text-green-600 font-medium">
-          Legal
+    <div className="min-h-screen flex flex-col bg-white font-sans">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto w-full z-10 relative">
+        <div className="text-3xl font-extrabold text-green-700 tracking-tighter">PocketGuard</div>
+        <Link href="/terminos" className="text-gray-600 hover:text-green-700 font-medium transition-colors">
+          Términos y Privacidad
         </Link>
       </nav>
 
       {/* Hero Section */}
-      <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-24 flex flex-col lg:flex-row items-center">
+      <main className="flex-grow flex items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 flex flex-col lg:flex-row items-center justify-between w-full">
           
-          {/* Texto de Venta */}
-          <div className="lg:w-1/2 text-center lg:text-left mb-10 lg:mb-0">
-            <h1 className="text-4xl lg:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">
-              Elimina el <span className="text-green-600">Impuesto de la Pereza</span>
+          {/* Columna Izquierda: Texto de Venta */}
+          <div className="lg:w-1/2 text-center lg:text-left mb-16 lg:mb-0 lg:pr-12">
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">
+              Dile adiós al <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-teal-500">
+                Impuesto de la Pereza
+              </span>
             </h1>
-            <p className="text-lg text-gray-500 mb-8">
-              Visualiza tu "Saldo Real Gastado" y recibe alertas proactivas sobre tus suscripciones antes de que te cobren.
-              Toma el control de tus finanzas personales [cite: 20-21].
+            <p className="text-xl text-gray-600 mb-10 leading-relaxed">
+              ¿Sabes cuánto gastas realmente? Visualiza tu <strong>"Saldo Real Gastado"</strong> y recibe alertas antes de que tus suscripciones se renueven automáticamente.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a 
                 href={process.env.NEXT_PUBLIC_APP_DOWNLOAD_LINK} 
-                className="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 md:py-4 md:text-lg transition shadow-lg"
+                className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-green-600 hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
               >
                 <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
-                Descargar para Android
+                Descargar App
               </a>
+              <Link 
+                href="/reportes"
+                className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-green-700 bg-green-50 hover:bg-green-100 transition border-2 border-green-100"
+              >
+                Ver Reportes
+              </Link>
             </div>
           </div>
 
-          {/* Imagen / Mockup (Placeholder visual) */}
-          <div className="lg:w-1/2 flex justify-center">
-            <div className="relative w-72 h-[580px] bg-gray-900 rounded-[3rem] border-8 border-gray-800 shadow-2xl overflow-hidden">
-              {/* Aquí iría una captura de tu app */}
-              <div className="absolute inset-0 bg-green-50 flex items-center justify-center text-gray-400">
-                Mockup PocketGuard App
+          {/* Columna Derecha: Mockup del Teléfono */}
+          <div className="lg:w-1/2 flex justify-center relative">
+            {/* Círculo decorativo de fondo */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-green-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+            
+            {/* Marco del Teléfono */}
+            <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden ring-4 ring-gray-200">
+              {/* Notch / Cámara */}
+              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-xl z-20"></div>
+              
+              {/* Pantalla / Imagen de la App */}
+              <div className="relative w-full h-full bg-white">
+                {/* NOTA: Asegúrate de poner tu imagen 'app-screenshot.png' en la carpeta public/ 
+                   Si no tienes imagen aún, este div gris servirá de placeholder.
+                */}
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                   {/* Descomenta la siguiente línea cuando tengas la imagen */}
+                   {/* <Image src="/app-screenshot.png" alt="PocketGuard App" fill style={{objectFit: 'cover'}} /> */}
+                   <span className="text-center px-4">📸 Coloca tu captura en public/app-screenshot.png</span>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="bg-gray-50 py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <FeatureCard 
-                icon={<ClockIcon className="h-8 w-8 text-green-600" />}
-                title="Registro en < 3 Toques"
-                desc="Diseñada para la inmediatez. Registra tus gastos en segundos, sin fricción[cite: 22]."
-              />
-              <FeatureCard 
-                icon={<ShieldCheckIcon className="h-8 w-8 text-green-600" />}
-                title="Alertas Preventivas"
-                desc="Te avisamos antes de que se renueven tus suscripciones automáticas[cite: 21]."
-              />
-              <FeatureCard 
-                icon={<span className="text-2xl font-bold text-green-600">$</span>}
-                title="Saldo Real"
-                desc="Conoce tu liquidez real descontando los gastos fijos futuros."
-              />
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="bg-white py-8 text-center text-gray-400 text-sm">
-        © 2026 PocketGuard. Todos los derechos reservados.
+      {/* Features Section */}
+      <section className="bg-gray-50 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {/* Feature 1: Corregido para ser más preciso */}
+            <FeatureCard 
+              icon={<BoltIcon className="h-10 w-10 text-green-600" />}
+              title="Registro de Gastos al Instante"
+              desc="Diseñada para la movilidad. Registra tus transacciones diarias (café, transporte) en segundos para no perder el hábito."
+            />
+            {/* Feature 2 */}
+            <FeatureCard 
+              icon={<ShieldCheckIcon className="h-10 w-10 text-green-600" />}
+              title="Alertas Preventivas"
+              desc="El sistema predice tus ciclos de facturación y te avisa antes de que se realice el cobro automático."
+            />
+            {/* Feature 3 */}
+            <FeatureCard 
+              icon={<span className="text-4xl font-black text-green-600 leading-none">$</span>}
+              title="Saldo Real Gastado"
+              desc="Conoce tu liquidez verdadera. Descontamos tus gastos fijos futuros del dinero que tienes disponible hoy."
+            />
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-white py-10 text-center border-t border-gray-100">
+        <p className="text-gray-500">© 2026 PocketGuard. Ingeniería en Tecnologías de la Información.</p>
       </footer>
     </div>
   );
@@ -81,10 +107,10 @@ export default function LandingPage() {
 
 function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition">
-      <div className="mb-4">{icon}</div>
-      <h3 className="text-lg font-bold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600">{desc}</p>
+    <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+      <div className="mb-6 bg-green-50 w-16 h-16 rounded-xl flex items-center justify-center">{icon}</div>
+      <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
+      <p className="text-gray-600 leading-relaxed">{desc}</p>
     </div>
   );
 }
