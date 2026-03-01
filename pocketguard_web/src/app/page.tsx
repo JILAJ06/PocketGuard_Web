@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image'; // Importamos componente de imagen optimizado
 import { ArrowDownTrayIcon, ShieldCheckIcon, BoltIcon } from '@heroicons/react/24/outline';
 
 export default function LandingPage() {
@@ -32,39 +31,24 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a 
                 href={process.env.NEXT_PUBLIC_APP_DOWNLOAD_LINK} 
-                className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-green-600 hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-green-600 hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1 w-full sm:w-auto"
               >
                 <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
-                Descargar App
+                Descargar App para Android
               </a>
-              <Link 
-                href="/reportes"
-                className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-green-700 bg-green-50 hover:bg-green-100 transition border-2 border-green-100"
-              >
-                Ver Reportes
-              </Link>
+              {/* Se eliminó el botón de reportes por seguridad */}
             </div>
           </div>
 
           {/* Columna Derecha: Mockup del Teléfono */}
           <div className="lg:w-1/2 flex justify-center relative">
-            {/* Círculo decorativo de fondo */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-green-100 rounded-full blur-3xl opacity-50 -z-10"></div>
             
-            {/* Marco del Teléfono */}
             <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden ring-4 ring-gray-200">
-              {/* Notch / Cámara */}
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-xl z-20"></div>
-              
-              {/* Pantalla / Imagen de la App */}
               <div className="relative w-full h-full bg-white">
-                {/* NOTA: Asegúrate de poner tu imagen 'app-screenshot.png' en la carpeta public/ 
-                   Si no tienes imagen aún, este div gris servirá de placeholder.
-                */}
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-                   {/* Descomenta la siguiente línea cuando tengas la imagen */}
-                   {/* <Image src="/app-screenshot.png" alt="PocketGuard App" fill style={{objectFit: 'cover'}} /> */}
-                   <span className="text-center px-4">📸 Coloca tu captura en public/app-screenshot.png</span>
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 p-6 text-center">
+                   <span className="text-sm">📸 Coloca tu captura en public/app-screenshot.png</span>
                 </div>
               </div>
             </div>
@@ -76,19 +60,16 @@ export default function LandingPage() {
       <section className="bg-gray-50 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            {/* Feature 1: Corregido para ser más preciso */}
             <FeatureCard 
               icon={<BoltIcon className="h-10 w-10 text-green-600" />}
               title="Registro de Gastos al Instante"
               desc="Diseñada para la movilidad. Registra tus transacciones diarias (café, transporte) en segundos para no perder el hábito."
             />
-            {/* Feature 2 */}
             <FeatureCard 
               icon={<ShieldCheckIcon className="h-10 w-10 text-green-600" />}
               title="Alertas Preventivas"
               desc="El sistema predice tus ciclos de facturación y te avisa antes de que se realice el cobro automático."
             />
-            {/* Feature 3 */}
             <FeatureCard 
               icon={<span className="text-4xl font-black text-green-600 leading-none">$</span>}
               title="Saldo Real Gastado"
