@@ -25,4 +25,28 @@ export const AuthService = {
       return false;
     }
   }
+
+};
+
+export const resetPassword = {
+    async async (token: string, newPassword: string): Promise<void> {
+      try {
+        const response = await fetch(`${API_URL}/auth/reset-password`, {
+          method: 'POST',
+          headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al restablecer la contraseña');
+      }
+
+      return await response.json();
+    }   catch (error) {
+      throw error;
+    }
+  }
 };
