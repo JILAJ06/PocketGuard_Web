@@ -36,7 +36,6 @@ export default function LandingPage() {
                 <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
                 Descargar App para Android
               </a>
-              {/* Se eliminó el botón de reportes por seguridad */}
             </div>
           </div>
 
