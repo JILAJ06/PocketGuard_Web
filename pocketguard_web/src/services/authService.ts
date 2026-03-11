@@ -12,28 +12,21 @@ export const AuthService = {
       });
 
       if (!response.ok) {
-        return false; // Credenciales inválidas o error en el servidor
+        return false; 
       }
-
-      // Si necesitas guardar el token más adelante, se haría aquí:
-      // const data = await response.json();
-      // localStorage.setItem('token', data.token);
 
       return true;
     } catch (error) {
       console.error("Error en autenticación:", error);
       return false;
     }
-  }
+  },
 
-};
-
-export const resetPassword = {
-    async async (token: string, newPassword: string): Promise<void> {
-      try {
-        const response = await fetch(`${API_URL}/auth/reset-password`, {
-          method: 'POST',
-          headers: {
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token, newPassword }),
@@ -44,8 +37,7 @@ export const resetPassword = {
         throw new Error(errorData.message || 'Error al restablecer la contraseña');
       }
 
-      return await response.json();
-    }   catch (error) {
+    } catch (error) {
       throw error;
     }
   }

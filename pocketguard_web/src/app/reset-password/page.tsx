@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { AuthService } from '@/services/authService'; 
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token'); // Captura el token de la URL: ?token=xyz
+  const token = searchParams.get('token'); 
 
   const [passwords, setPasswords] = useState({ new: '', confirm: '' });
   const [error, setError] = useState('');
@@ -14,7 +15,6 @@ export default function ResetPasswordPage() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
-    // Si no hay token en la URL, se puede redirigir o mostrar error
     if (!token) {
       setError('Enlace inválido o expirado. Por favor, solicita uno nuevo.');
     }
@@ -23,6 +23,11 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!token) {
+      setError('Enlace inválido o expirado.');
+      return;
+    }
 
     if (passwords.new.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres.');
@@ -37,15 +42,11 @@ export default function ResetPasswordPage() {
     setIsSubmitting(true);
 
     try {
-      // Aquí conectas con tu backend. Ejemplo:
-      // await authService.resetPassword(token, passwords.new);
-      
-      // Simulamos la espera de la API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await AuthService.resetPassword(token, passwords.new);
       
       setIsSuccess(true);
-    } catch (err) {
-      setError('Hubo un error al restablecer la contraseña. Intenta nuevamente.');
+    } catch (err: any) {
+      setError(err.message || 'Hubo un error al restablecer la contraseña. Intenta nuevamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +78,6 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-           {/* Ícono representativo de Seguridad/Candado */}
            <div className="p-3 bg-green-100 rounded-full">
             <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
