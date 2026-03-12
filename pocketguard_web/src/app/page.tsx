@@ -30,7 +30,9 @@ export default function LandingPage() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a 
-                href={process.env.NEXT_PUBLIC_APP_DOWNLOAD_LINK} 
+                href="https://github.com/JILAJ06/PocketGuard/releases/download/v1.0.0/PocketGuard_Beta.apk" 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-green-600 hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1 w-full sm:w-auto"
               >
                 <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
@@ -46,9 +48,11 @@ export default function LandingPage() {
             <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden ring-4 ring-gray-200">
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-xl z-20"></div>
               <div className="relative w-full h-full bg-white">
-                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 p-6 text-center">
-                   <span className="text-sm">📸 Coloca tu captura en public/app-screenshot.png</span>
-                </div>
+                <img 
+                  src="/app-screenshot.jpg" 
+                  alt="Captura de la aplicación PocketGuard" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>
