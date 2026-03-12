@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '@/services/authService'; 
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token'); 
@@ -45,8 +45,9 @@ export default function ResetPasswordPage() {
       await AuthService.resetPassword(token, passwords.new);
       
       setIsSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'Hubo un error al restablecer la contraseña. Intenta nuevamente.');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Hubo un error al restablecer la contraseña. Intenta nuevamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -157,5 +158,19 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="flex justify-center h-64 items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

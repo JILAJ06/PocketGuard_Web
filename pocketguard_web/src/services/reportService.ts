@@ -5,7 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const ReportService = {
   async getMonthlySummary(): Promise<MonthlyExpenseReport> {
     try {
-      const response = await fetch(`${API_URL}/reports/summary`, {
+      const response = await fetch(`${API_URL}/v1/reports/summary`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

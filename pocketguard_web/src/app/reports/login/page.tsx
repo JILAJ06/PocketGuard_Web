@@ -16,16 +16,30 @@ export default function ReportsLoginPage() {
     setIsLoggingIn(true);
     setError('');
 
-    const success = await AuthService.login(email, password);
+    const result = await AuthService.adminLogin(email, password);
+    
+    console.log('🎯 Resultado del login:', result);
 
-    if (success) {
+    if (result.success && result.token) {
+      console.log('✅ Login exitoso, guardando datos...');
       sessionStorage.setItem('reportsAuth', 'true');
       sessionStorage.setItem('reportsEmail', email);
+      sessionStorage.setItem('adminToken', result.token);
+      
+      console.log('📦 SessionStorage guardado:', {
+        reportsAuth: sessionStorage.getItem('reportsAuth'),
+        reportsEmail: sessionStorage.getItem('reportsEmail'),
+        hasToken: !!sessionStorage.getItem('adminToken')
+      });
+      
+      console.log('🚀 Redirigiendo a /reports...');
       router.push('/reports');
       return;
     }
 
-    setError('Credenciales incorrectas. Intenta de nuevo.');
+    // Mostrar el error específico del servidor
+    console.log('❌ Login fallido:', result.error);
+    setError(result.error || 'Credenciales incorrectas. Intenta de nuevo.');
     setIsLoggingIn(false);
   };
 
