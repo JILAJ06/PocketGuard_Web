@@ -9,7 +9,6 @@ export const ReportService = {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          // 'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         cache: 'no-store' 
       });
@@ -19,7 +18,6 @@ export const ReportService = {
       return await response.json();
     } catch (error) {
       console.error("Service Error:", error);
-      // Retorno vacío por defecto para evitar que la UI falle si la API no responde
       return {
         month: '',
         totalSpent: 0,
