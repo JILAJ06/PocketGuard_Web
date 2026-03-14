@@ -30,7 +30,7 @@ export default function LandingPage() {
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <a 
-                href="https://github.com/JILAJ06/PocketGuard/releases/download/v1.0.0/Pocket-Guard.apk" 
+                href="https://github.com/JILAJ06/PocketGuard/releases/download/v1.0.0/PocketGuard.apk" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center px-8 py-4 text-lg font-bold rounded-full text-white bg-green-600 hover:bg-green-700 transition shadow-xl hover:shadow-2xl transform hover:-translate-y-1 w-full sm:w-auto"
