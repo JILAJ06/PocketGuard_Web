@@ -1,0 +1,43 @@
+<svg width="1080" height="2160" viewBox="0 0 1080 2160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1080" y2="2160" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E9FFF2"/>
+      <stop offset="1" stop-color="#D9F6E6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1080" height="2160" fill="url(#bg)"/>
+
+  <rect x="70" y="180" width="940" height="140" rx="32" fill="#FFFFFF"/>
+  <text x="130" y="265" fill="#175A39" font-size="46" font-family="Arial, Helvetica, sans-serif" font-weight="700">Alertas inteligentes</text>
+
+  <rect x="70" y="380" width="940" height="320" rx="40" fill="#0C7A40"/>
+  <text x="130" y="480" fill="#DDFEEB" font-size="42" font-family="Arial, Helvetica, sans-serif">Proximo cobro en 2 dias</text>
+  <text x="130" y="590" fill="white" font-size="82" font-family="Arial, Helvetica, sans-serif" font-weight="700">Netflix</text>
+  <text x="130" y="650" fill="#DDFEEB" font-size="38" font-family="Arial, Helvetica, sans-serif">$14.99 el 20 de marzo</text>
+
+  <rect x="70" y="760" width="940" height="1260" rx="40" fill="#FFFFFF"/>
+  <text x="130" y="850" fill="#1D2939" font-size="42" font-family="Arial, Helvetica, sans-serif" font-weight="600">Recordatorios de renovacion</text>
+
+  <rect x="130" y="910" width="820" height="190" rx="28" fill="#FEF3F2"/>
+  <circle cx="200" cy="1005" r="28" fill="#F04438"/>
+  <text x="250" y="990" fill="#1D2939" font-size="38" font-family="Arial, Helvetica, sans-serif" font-weight="600">Adobe Creative Cloud</text>
+  <text x="250" y="1045" fill="#667085" font-size="32" font-family="Arial, Helvetica, sans-serif">Renueva manana - $52.99</text>
+
+  <rect x="130" y="1130" width="820" height="190" rx="28" fill="#FFF8E8"/>
+  <circle cx="200" cy="1225" r="28" fill="#F79009"/>
+  <text x="250" y="1210" fill="#1D2939" font-size="38" font-family="Arial, Helvetica, sans-serif" font-weight="600">Amazon Prime</text>
+  <text x="250" y="1265" fill="#667085" font-size="32" font-family="Arial, Helvetica, sans-serif">Renueva en 4 dias - $6.99</text>
+
+  <rect x="130" y="1350" width="820" height="190" rx="28" fill="#ECFDF3"/>
+  <circle cx="200" cy="1445" r="28" fill="#12B76A"/>
+  <text x="250" y="1430" fill="#1D2939" font-size="38" font-family="Arial, Helvetica, sans-serif" font-weight="600">Spotify</text>
+  <text x="250" y="1485" fill="#667085" font-size="32" font-family="Arial, Helvetica, sans-serif">Renueva en 8 dias - $8.99</text>
+
+  <rect x="130" y="1590" width="820" height="310" rx="32" fill="#F9FAFB"/>
+  <text x="180" y="1670" fill="#344054" font-size="36" font-family="Arial, Helvetica, sans-serif">Accion rapida</text>
+  <rect x="180" y="1710" width="300" height="120" rx="24" fill="#16A34A"/>
+  <text x="232" y="1785" fill="white" font-size="34" font-family="Arial, Helvetica, sans-serif" font-weight="700">Pausar</text>
+  <rect x="520" y="1710" width="300" height="120" rx="24" fill="#101828"/>
+  <text x="585" y="1785" fill="white" font-size="34" font-family="Arial, Helvetica, sans-serif" font-weight="700">Ver mas</text>
+</svg>

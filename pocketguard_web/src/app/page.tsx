@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowDownTrayIcon, ShieldCheckIcon, BoltIcon } from '@heroicons/react/24/outline';
+import ImageCarousel from '@/components/ImageCarousel';
 
 export default function LandingPage() {
   return (
@@ -47,13 +48,7 @@ export default function LandingPage() {
             
             <div className="relative w-[300px] h-[600px] bg-gray-900 rounded-[3rem] border-[8px] border-gray-800 shadow-2xl overflow-hidden ring-4 ring-gray-200">
               <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-xl z-20"></div>
-              <div className="relative w-full h-full bg-white">
-                <img 
-                  src="/app-screenshot.jpg" 
-                  alt="Captura de la aplicación PocketGuard" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <ImageCarousel />
             </div>
           </div>
         </div>
@@ -71,12 +66,12 @@ export default function LandingPage() {
             <FeatureCard 
               icon={<ShieldCheckIcon className="h-10 w-10 text-green-600" />}
               title="Alertas Preventivas"
-              desc="El sistema predice tus ciclos de facturación y te avisa antes de que se realice el cobro automático."
+              desc="El sistema muestra tus ciclos de facturación y te avisa antes de que se realice el cobro automático."
             />
             <FeatureCard 
               icon={<span className="text-4xl font-black text-green-600 leading-none">$</span>}
               title="Saldo Real Gastado"
-              desc="Conoce tu liquidez verdadera. Descontamos tus gastos fijos futuros del dinero que tienes disponible hoy."
+              desc="Conoce tu liquidez verdadera."
             />
           </div>
         </div>

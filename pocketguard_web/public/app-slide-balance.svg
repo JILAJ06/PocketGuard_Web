@@ -1,0 +1,39 @@
+<svg width="1080" height="2160" viewBox="0 0 1080 2160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="2160" fill="#F7FDF9"/>
+  <rect x="70" y="180" width="940" height="130" rx="32" fill="#E4F7EB"/>
+  <text x="130" y="260" fill="#116D3D" font-size="48" font-family="Arial, Helvetica, sans-serif" font-weight="700">PocketGuard</text>
+
+  <rect x="70" y="390" width="940" height="400" rx="40" fill="#0F8F4A"/>
+  <text x="130" y="490" fill="#DDFEEB" font-size="44" font-family="Arial, Helvetica, sans-serif">Saldo real gastado</text>
+  <text x="130" y="640" fill="white" font-size="120" font-family="Arial, Helvetica, sans-serif" font-weight="700">$1,285.60</text>
+  <text x="130" y="720" fill="#DDFEEB" font-size="38" font-family="Arial, Helvetica, sans-serif">Actualizado hoy</text>
+
+  <rect x="70" y="860" width="940" height="250" rx="36" fill="white"/>
+  <text x="130" y="955" fill="#1D2939" font-size="42" font-family="Arial, Helvetica, sans-serif" font-weight="600">Gasto mensual</text>
+  <rect x="130" y="1005" width="760" height="24" rx="12" fill="#D2F2DD"/>
+  <rect x="130" y="1005" width="560" height="24" rx="12" fill="#16A34A"/>
+  <text x="130" y="1075" fill="#667085" font-size="34" font-family="Arial, Helvetica, sans-serif">72% de tu presupuesto</text>
+
+  <rect x="70" y="1160" width="455" height="260" rx="36" fill="#FFFFFF"/>
+  <text x="115" y="1260" fill="#344054" font-size="36" font-family="Arial, Helvetica, sans-serif">Suscripciones</text>
+  <text x="115" y="1340" fill="#101828" font-size="62" font-family="Arial, Helvetica, sans-serif" font-weight="700">9</text>
+
+  <rect x="555" y="1160" width="455" height="260" rx="36" fill="#FFFFFF"/>
+  <text x="600" y="1260" fill="#344054" font-size="36" font-family="Arial, Helvetica, sans-serif">Ahorro mensual</text>
+  <text x="600" y="1340" fill="#101828" font-size="62" font-family="Arial, Helvetica, sans-serif" font-weight="700">$126</text>
+
+  <rect x="70" y="1480" width="940" height="560" rx="40" fill="#FFFFFF"/>
+  <text x="130" y="1570" fill="#1D2939" font-size="42" font-family="Arial, Helvetica, sans-serif" font-weight="600">Movimientos recientes</text>
+
+  <rect x="130" y="1620" width="820" height="92" rx="24" fill="#F2F4F7"/>
+  <text x="165" y="1678" fill="#101828" font-size="34" font-family="Arial, Helvetica, sans-serif">Spotify</text>
+  <text x="805" y="1678" fill="#475467" font-size="34" font-family="Arial, Helvetica, sans-serif">$8.99</text>
+
+  <rect x="130" y="1740" width="820" height="92" rx="24" fill="#F2F4F7"/>
+  <text x="165" y="1798" fill="#101828" font-size="34" font-family="Arial, Helvetica, sans-serif">YouTube Premium</text>
+  <text x="765" y="1798" fill="#475467" font-size="34" font-family="Arial, Helvetica, sans-serif">$11.99</text>
+
+  <rect x="130" y="1860" width="820" height="92" rx="24" fill="#F2F4F7"/>
+  <text x="165" y="1918" fill="#101828" font-size="34" font-family="Arial, Helvetica, sans-serif">Gym Pass</text>
+  <text x="805" y="1918" fill="#475467" font-size="34" font-family="Arial, Helvetica, sans-serif">$19.00</text>
+</svg>
