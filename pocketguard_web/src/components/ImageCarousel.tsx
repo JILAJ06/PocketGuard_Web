@@ -9,11 +9,11 @@ const slides = [
     alt: 'Vista general de la aplicacion PocketGuard',
   },
   {
-    src: '/app-slide-balance.svg',
+    src: '/app-screenshot2.jpg',
     alt: 'Panel de saldo real gastado',
   },
   {
-    src: '/app-slide-alerts.svg',
+    src: '/app-screenshot3.jpg',
     alt: 'Vista de alertas de suscripciones',
   },
 ];
