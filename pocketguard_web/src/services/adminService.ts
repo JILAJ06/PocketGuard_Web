@@ -1,27 +1,43 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-interface DashboardData {
-  totalUsers: number;
-  activeUsers: number;
-  totalTransactions: number;
-  totalRevenue: number;
-  savingsRate: number;
-  activeSubscriptions: number;
-  expenseChartData: Array<{
-    name: string;
-    necesarios: number;
-    fugas: number;
-  }>;
-  retentionData: Array<{
-    day: string;
-    users: number;
-  }>;
-  criticalExpenses: Array<{
-    category: string;
-    amount: number;
-    impact: string;
-    status: string;
-  }>;
+interface ProjectedSpendVsUsers {
+  totalPilotUsers: number;
+  totalMonthlyCost: number;
+  averageSpendPerUser: number;
+}
+
+interface LazinessTaxReduction {
+  totalHistoricalMonthlyCost: number;
+  monthlySavedMoney: number;
+  spendReductionPercentage: number;
+}
+
+interface PotentialSavingsUser {
+  fullName: string;
+  totalAmount: number;
+  groupAverage: number;
+}
+
+interface ImminentRiskByCategory {
+  categoryName: string;
+  paymentUrgency: string;
+  subscriptionCount: number;
+  totalMoneyAtRisk: number;
+}
+
+interface SpendingConcentrationByCycle {
+  cycleName: string;
+  totalSubscriptions: number;
+  totalGrossAmount: number;
+  totalExpensePercentage: number;
+}
+
+export interface ReportsDashboardData {
+  projectedSpendVsUsers: ProjectedSpendVsUsers;
+  lazinessTaxReduction: LazinessTaxReduction;
+  potentialSavingsUsers: PotentialSavingsUser[];
+  imminentRiskByCategory: ImminentRiskByCategory[];
+  spendingConcentrationByCycle: SpendingConcentrationByCycle[];
 }
 
 interface ReminderDetail {
@@ -63,7 +79,7 @@ export const AdminService = {
     return null;
   },
 
-  async getDashboard(): Promise<DashboardData | null> {
+  async getDashboard(): Promise<ReportsDashboardData | null> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -84,125 +100,80 @@ export const AdminService = {
       }
       
       const result = await response.json();
-      
-      console.log('📦 Respuesta completa del backend:', result);
-      console.log('📊 Datos recibidos:', result.data);
-      
-      if (!result.success || !result.data) {
-        throw new Error('Invalid response structure');
-      }
+      const backendData = result?.data ?? result;
 
-      // Mapear los datos del backend al formato esperado por el frontend
-      const backendData = result.data;
-      
-      console.log('🔍 generalStats:', backendData.generalStats);
-      console.log('🔍 churnWeekly:', backendData.churnWeekly);
-      console.log('🔍 expenses:', backendData.expenses);
-      
-      // Extraer estadísticas generales - usar los nombres REALES del backend
-      const generalStats = backendData.generalStats || {};
-      const totalUsers = Number(generalStats.total_pilot_users) || 0;
-      const activeUsers = totalUsers; // Por ahora, todos los pilot users son activos
-      const totalSubscriptions = Number(generalStats.active_subscriptions) || 0;
-      const avgSpendPerUser = Number(generalStats.avg_subscription_cost) || 0;
-      const notificationsSent = Number(generalStats.total_notifications_sent) || 0;
-      
-      console.log('✅ Valores extraídos:', { totalUsers, activeUsers, totalSubscriptions, avgSpendPerUser, notificationsSent });
-      
-      // Procesar datos de retención (churn weekly) - usar el nombre REAL del backend
-      const churnData = backendData.churnWeekly || [];
-      console.log('📈 churnWeekly procesada:', churnData);
-      
-      const retentionData = churnData.slice(0, 7).map((item: { week_start?: string; date?: string; active_users?: number; users?: number; count?: number }) => ({
-        day: new Date(item.week_start || item.date || new Date()).toLocaleDateString('es-ES', { weekday: 'short' }),
-        users: Number(item.active_users || item.users || item.count) || 0
-      }));
-      
-      console.log('📊 retentionData final:', retentionData);
-      
-      // Calcular datos de gastos basados en suscripciones reales
-      const monthlyAvg = avgSpendPerUser * totalSubscriptions; // Total gastado en suscripciones
-      const essentialExpenses = Math.round(monthlyAvg * 0.75); // 75% gastos necesarios
-      const leakExpenses = Math.round(monthlyAvg * 0.25); // 25% "fugas"
-      
-      console.log('💰 Cálculos de gastos:', { monthlyAvg, essentialExpenses, leakExpenses });
-      
-      // Si hay suscripciones, crear estimación basada en datos reales
-      const baseExpense = totalSubscriptions > 0 ? avgSpendPerUser * totalSubscriptions : 1000;
-      const expenseChartData = [
-        { 
-          name: 'Ene', 
-          necesarios: Math.round(baseExpense * 0.75 * 0.9), 
-          fugas: Math.round(baseExpense * 0.25 * 1.1)
-        },
-        { 
-          name: 'Feb', 
-          necesarios: Math.round(baseExpense * 0.75 * 1.05), 
-          fugas: Math.round(baseExpense * 0.25 * 0.95)
-        },
-        { 
-          name: 'Mar', 
-          necesarios: Math.round(baseExpense * 0.75), 
-          fugas: Math.round(baseExpense * 0.25)
-        }
-      ];
-      
-      console.log('📊 expenseChartData:', expenseChartData);
-      
-      // Calcular tasa de ahorro
-      const totalExpenses = essentialExpenses + leakExpenses;
-      const potentialSavings = totalExpenses > 0 ? (leakExpenses / totalExpenses) * 100 : 25;
-      const savingsRate = Math.round(potentialSavings * 10) / 10;
-      
-      // Crear tabla de gastos críticos con datos reales
-      const criticalExpenses = [
-        { 
-          category: 'Usuarios en Piloto', 
-          amount: totalUsers, 
-          impact: totalUsers > 10 ? 'Alto' : totalUsers > 5 ? 'Medio' : 'Info', 
-          status: 'Activo' 
-        },
-        { 
-          category: 'Suscripciones Activas', 
-          amount: totalSubscriptions, 
-          impact: totalSubscriptions > 10 ? 'Crítico' : totalSubscriptions > 5 ? 'Alto' : 'Info', 
-          status: 'Monitoreado' 
-        },
-        { 
-          category: 'Costo Promedio/Suscripción', 
-          amount: Math.round(avgSpendPerUser * 100) / 100, 
-          impact: avgSpendPerUser > 500 ? 'Alto' : 'Medio', 
-          status: 'Activo' 
-        },
-        { 
-          category: 'Notificaciones Enviadas', 
-          amount: notificationsSent, 
-          impact: notificationsSent > 50 ? 'Alto' : 'Info', 
-          status: 'Activo' 
-        }
-      ].filter(item => item.amount > 0);
-      
-      const finalData = {
-        totalUsers,
-        activeUsers,
-        totalTransactions: totalSubscriptions,
-        totalRevenue: Math.round(monthlyAvg > 0 ? monthlyAvg : 0),
-        savingsRate,
-        activeSubscriptions: totalSubscriptions,
-        expenseChartData,
-        retentionData: retentionData.length > 0 ? retentionData : [
-          { day: 'Lun', users: activeUsers },
-          { day: 'Mar', users: Math.round(activeUsers * 1.2) },
-          { day: 'Mié', users: Math.round(activeUsers * 1.3) },
-          { day: 'Jue', users: Math.round(activeUsers * 1.25) },
-          { day: 'Vie', users: Math.round(activeUsers * 1.4) }
-        ],
-        criticalExpenses
+      const asNumber = (value: unknown): number => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : 0;
       };
-      
-      console.log('🎯 Datos finales a retornar:', finalData);
-      
-      return finalData;
+
+      const asArray = <T>(value: unknown): T[] => Array.isArray(value) ? value as T[] : [];
+
+      const candidateObject = (...keys: string[]) => {
+        for (const key of keys) {
+          const value = backendData?.[key];
+          if (value && typeof value === 'object' && !Array.isArray(value)) {
+            return value;
+          }
+        }
+        return null;
+      };
+
+      const candidateArray = <T>(...keys: string[]): T[] => {
+        for (const key of keys) {
+          const value = backendData?.[key];
+          if (Array.isArray(value)) {
+            return value as T[];
+          }
+        }
+        return [];
+      };
+
+      const query1 = candidateObject('query1', 'q1', 'projectedSpendVsUsers', 'pilotGeneralStats', 'generalStats') ?? {};
+      const query2 = candidateObject('query2', 'q2', 'lazinessTaxReduction', 'spendReduction', 'normalizedSpending') ?? {};
+      const query3 = candidateArray<Record<string, unknown>>('query3', 'q3', 'potentialSavingsUsers', 'highSpenders');
+      const query4 = candidateArray<Record<string, unknown>>('query4', 'q4', 'imminentRiskByCategory', 'riskByUrgency');
+      const query5 = candidateArray<Record<string, unknown>>('query5', 'q5', 'spendingConcentrationByCycle', 'subscriptionMetricsByCycle');
+
+      const projectedSpendVsUsers: ProjectedSpendVsUsers = {
+        totalPilotUsers: asNumber(query1.total_pilot_users),
+        totalMonthlyCost: asNumber(query1.total_monthly_cost),
+        averageSpendPerUser: asNumber(query1.average_spend_per_user)
+      };
+
+      const lazinessTaxReduction: LazinessTaxReduction = {
+        totalHistoricalMonthlyCost: asNumber(query2.total_gasto_historico_mensualizado),
+        monthlySavedMoney: asNumber(query2.dinero_mensual_ahorrado),
+        spendReductionPercentage: asNumber(query2.porcentaje_reduccion_gasto)
+      };
+
+      const potentialSavingsUsers: PotentialSavingsUser[] = asArray<Record<string, unknown>>(query3).map((item) => ({
+        fullName: String(item.full_name ?? item.fullName ?? 'Usuario sin nombre'),
+        totalAmount: asNumber(item.monto_total ?? item.total_amount ?? item.totalAmount),
+        groupAverage: asNumber(item.promedio_grupal ?? item.group_average ?? item.groupAverage)
+      }));
+
+      const imminentRiskByCategory: ImminentRiskByCategory[] = asArray<Record<string, unknown>>(query4).map((item) => ({
+        categoryName: String(item.category_name ?? item.categoryName ?? 'Sin categoría'),
+        paymentUrgency: String(item.urgencia_pago ?? item.payment_urgency ?? item.paymentUrgency ?? 'ALTA'),
+        subscriptionCount: asNumber(item.cantidad_suscripciones ?? item.subscription_count ?? item.subscriptionCount),
+        totalMoneyAtRisk: asNumber(item.total_dinero_en_riesgo ?? item.total_money_at_risk ?? item.totalMoneyAtRisk)
+      }));
+
+      const spendingConcentrationByCycle: SpendingConcentrationByCycle[] = asArray<Record<string, unknown>>(query5).map((item) => ({
+        cycleName: String(item.cycle_name ?? item.cycleName ?? 'Sin ciclo'),
+        totalSubscriptions: asNumber(item.total_subscriptions ?? item.totalSubscriptions),
+        totalGrossAmount: asNumber(item.total_gross_amount ?? item.totalGrossAmount),
+        totalExpensePercentage: asNumber(item.porcentaje_del_gasto_total ?? item.total_expense_percentage ?? item.totalExpensePercentage)
+      }));
+
+      return {
+        projectedSpendVsUsers,
+        lazinessTaxReduction,
+        potentialSavingsUsers,
+        imminentRiskByCategory,
+        spendingConcentrationByCycle
+      };
     } catch (error) {
       console.error("AdminService Error (getDashboard):", error);
       return null;
