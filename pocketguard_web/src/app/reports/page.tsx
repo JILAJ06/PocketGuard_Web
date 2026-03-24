@@ -138,7 +138,7 @@ export default function ReportesPage() {
                 icon={<ChartBarIcon className="h-8 w-8 text-blue-600" />}
                 title="Promedio por Usuario" 
                 value={formatCurrency(data.projectedSpendVsUsers.averageSpendPerUser)} 
-                desc="Magnitud del gasto hormiga por usuario"
+                desc=""
                 borderColor="border-blue-500"
               />
               <DashboardCard 
@@ -161,7 +161,7 @@ export default function ReportesPage() {
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">Concentración del gasto por ciclo</h3>
                 <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={260}>
                     <BarChart data={data.spendingConcentrationByCycle}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="cycleName" />
@@ -182,7 +182,7 @@ export default function ReportesPage() {
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">Riesgo inminente por categoría</h3>
                 <div className="h-72">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={260}>
                     <BarChart data={data.imminentRiskByCategory}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="categoryName" />

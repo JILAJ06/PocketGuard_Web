@@ -136,15 +136,15 @@ export const AdminService = {
       const query5 = candidateArray<Record<string, unknown>>('query5', 'q5', 'spendingConcentrationByCycle', 'subscriptionMetricsByCycle');
 
       const projectedSpendVsUsers: ProjectedSpendVsUsers = {
-        totalPilotUsers: asNumber(query1.total_pilot_users),
-        totalMonthlyCost: asNumber(query1.total_monthly_cost),
-        averageSpendPerUser: asNumber(query1.average_spend_per_user)
+        totalPilotUsers: asNumber(query1.total_pilot_users ?? query1.totalPilotUsers ?? query1.total_users),
+        totalMonthlyCost: asNumber(query1.total_monthly_cost ?? query1.totalMonthlyCost ?? query1.total_monthly_spend),
+        averageSpendPerUser: asNumber(query1.average_spend_per_user ?? query1.averageSpendPerUser ?? query1.avg_subscription_cost)
       };
 
       const lazinessTaxReduction: LazinessTaxReduction = {
-        totalHistoricalMonthlyCost: asNumber(query2.total_gasto_historico_mensualizado),
-        monthlySavedMoney: asNumber(query2.dinero_mensual_ahorrado),
-        spendReductionPercentage: asNumber(query2.porcentaje_reduccion_gasto)
+        totalHistoricalMonthlyCost: asNumber(query2.total_gasto_historico_mensualizado ?? query2.totalHistoricalMonthlyCost),
+        monthlySavedMoney: asNumber(query2.dinero_mensual_ahorrado ?? query2.monthlySavedMoney),
+        spendReductionPercentage: asNumber(query2.porcentaje_reduccion_gasto ?? query2.spendReductionPercentage)
       };
 
       const potentialSavingsUsers: PotentialSavingsUser[] = asArray<Record<string, unknown>>(query3).map((item) => ({

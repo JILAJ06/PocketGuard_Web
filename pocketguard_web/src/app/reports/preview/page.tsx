@@ -115,7 +115,7 @@ export default function ReportesPreviewPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Concentración del gasto por ciclo</h3>
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={260}>
                 <BarChart data={data.spendingConcentrationByCycle}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="cycleName" />
@@ -136,7 +136,7 @@ export default function ReportesPreviewPage() {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">Riesgo inminente por categoría</h3>
             <div className="h-72">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={260}>
                 <BarChart data={data.imminentRiskByCategory}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="categoryName" />
