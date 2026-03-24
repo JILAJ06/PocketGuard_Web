@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AdminService, ReportsDashboardData } from '@/services/adminService';
 import {
@@ -82,13 +82,45 @@ export default function ReportesPage() {
       }
 
       setLoadingData(true);
-      const data = await AdminService.getDashboard();
-      setDashboardData(data);
+      const dashboardData = await AdminService.getDashboard();
+      if (dashboardData) {
+        setData(dashboardData);
+      } else {
+        setData(FALLBACK_DATA);
+      }
       setLoadingData(false);
     };
 
     loadData();
   }, [isAccessChecked]);
+
+  const totalAtRisk = data.imminentRiskByCategory.reduce((acc, row) => acc + row.totalMoneyAtRisk, 0);
+  const highAndCriticalSubscriptions = data.imminentRiskByCategory.reduce((acc, row) => acc + row.subscriptionCount, 0);
+  const riskChartData = useMemo(() => {
+    const grouped = new Map<string, { categoryName: string; totalMoneyAtRisk: number }>();
+
+    data.imminentRiskByCategory.forEach((item) => {
+      const normalizedCategory = item.categoryName?.trim() ? item.categoryName : 'Otros';
+      const current = grouped.get(normalizedCategory);
+      if (current) {
+        current.totalMoneyAtRisk += item.totalMoneyAtRisk;
+      } else {
+        grouped.set(normalizedCategory, {
+          categoryName: normalizedCategory,
+          totalMoneyAtRisk: item.totalMoneyAtRisk
+        });
+      }
+    });
+
+    if (!grouped.has('Otros')) {
+      grouped.set('Otros', {
+        categoryName: 'Otros',
+        totalMoneyAtRisk: 0
+      });
+    }
+
+    return Array.from(grouped.values()).sort((a, b) => b.totalMoneyAtRisk - a.totalMoneyAtRisk);
+  }, [data.imminentRiskByCategory]);
 
   if (!isAccessChecked) {
     return (
@@ -100,15 +132,12 @@ export default function ReportesPage() {
     );
   }
 
-  const totalAtRisk = data.imminentRiskByCategory.reduce((acc, row) => acc + row.totalMoneyAtRisk, 0);
-  const highAndCriticalSubscriptions = data.imminentRiskByCategory.reduce((acc, row) => acc + row.subscriptionCount, 0);
-
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Dashboard de Reportes Estratégicos</h1>
+            <h1 className="text-2xl font-bold text-gray-800">PocketGuard - Dashboard de Reportes Estratégicos</h1>
             <p className="text-sm text-gray-500">Visualización de hipótesis: gasto hormiga, reducción y riesgo inminente</p>
           </div>
           <div className="mt-4 md:mt-0 flex items-center space-x-4">
@@ -165,7 +194,7 @@ export default function ReportesPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 gap-8 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">Concentración del gasto por ciclo</h3>
                 <div className="h-72">
@@ -191,9 +220,9 @@ export default function ReportesPage() {
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">Riesgo inminente por categoría</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%" minWidth={300} minHeight={260}>
-                    <BarChart data={data.imminentRiskByCategory}>
+                    <BarChart data={riskChartData}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="categoryName" />
+                      <XAxis dataKey="categoryName" interval={0} tickMargin={8} />
                       <YAxis tickFormatter={formatCurrencyCompact} />
                       <RechartsTooltip 
                         formatter={(value: number | string | undefined) => value !== undefined ? formatCurrency(Number(value)) : '$0.00'}
@@ -262,8 +291,8 @@ export default function ReportesPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-sm">
                       {data.imminentRiskByCategory.length > 0 ? (
-                        data.imminentRiskByCategory.map((risk) => (
-                          <tr key={risk.categoryName} className="hover:bg-gray-50">
+                        data.imminentRiskByCategory.map((risk, idx) => (
+                          <tr key={`${risk.categoryName}-${risk.paymentUrgency}-${idx}`} className="hover:bg-gray-50">
                             <td className="px-6 py-4 font-medium text-gray-800">{risk.categoryName}</td>
                             <td className="px-6 py-4">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -304,8 +333,8 @@ export default function ReportesPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-sm">
                       {data.spendingConcentrationByCycle.length > 0 ? (
-                        data.spendingConcentrationByCycle.map((cycle) => (
-                          <tr key={cycle.cycleName} className="hover:bg-gray-50">
+                        data.spendingConcentrationByCycle.map((cycle, idx) => (
+                          <tr key={`${cycle.cycleName}-${idx}`} className="hover:bg-gray-50">
                             <td className="px-6 py-4 font-medium text-gray-800">{cycle.cycleName}</td>
                             <td className="px-6 py-4 text-gray-700">{cycle.totalSubscriptions.toLocaleString('es-MX')}</td>
                             <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(cycle.totalGrossAmount)}</td>

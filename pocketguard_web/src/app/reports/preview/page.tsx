@@ -213,7 +213,7 @@ export default function ReportesPreviewPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-sm">
                   {data.imminentRiskByCategory.map((risk, idx: number) => (
-                    <tr key={idx} className="hover:bg-gray-50">
+                    <tr key={`${risk.categoryName}-${risk.paymentUrgency}-${idx}`} className="hover:bg-gray-50">
                       <td className="px-6 py-4 font-medium text-gray-800">{risk.categoryName}</td>
                       <td className="px-6 py-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -246,8 +246,8 @@ export default function ReportesPreviewPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-sm">
-                  {data.spendingConcentrationByCycle.map((cycle) => (
-                    <tr key={cycle.cycleName} className="hover:bg-gray-50">
+                  {data.spendingConcentrationByCycle.map((cycle, idx: number) => (
+                    <tr key={`${cycle.cycleName}-${idx}`} className="hover:bg-gray-50">
                       <td className="px-6 py-4 font-medium text-gray-800">{cycle.cycleName}</td>
                       <td className="px-6 py-4 text-gray-700">{cycle.totalSubscriptions.toLocaleString('es-MX')}</td>
                       <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(cycle.totalGrossAmount)}</td>

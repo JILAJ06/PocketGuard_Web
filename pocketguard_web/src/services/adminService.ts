@@ -1,6 +1,10 @@
-import { StrategicReportsApiResponse, StrategicReportsData } from '@/models/Reports';
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+interface ApiEnvelope<T> {
+  success: boolean;
+  message?: string;
+  data?: T;
+}
 
 interface ProjectedSpendVsUsers {
   totalPilotUsers: number;
@@ -172,28 +176,79 @@ export const AdminService = {
         return [];
       };
 
-      const query1 = candidateObject('query1', 'q1', 'projectedSpendVsUsers', 'pilotGeneralStats', 'generalStats') ?? {};
-      const query2 = candidateObject('query2', 'q2', 'lazinessTaxReduction', 'spendReduction', 'normalizedSpending') ?? {};
-      const query3 = candidateArray<Record<string, unknown>>('query3', 'q3', 'potentialSavingsUsers', 'highSpenders');
-      const query4 = candidateArray<Record<string, unknown>>('query4', 'q4', 'imminentRiskByCategory', 'riskByUrgency');
-      const query5 = candidateArray<Record<string, unknown>>('query5', 'q5', 'spendingConcentrationByCycle', 'subscriptionMetricsByCycle');
+      const rawData = (backendData?.raw ?? {}) as Record<string, unknown>;
+      const summaryCards = (backendData?.summary_cards ?? backendData?.summaryCards ?? {}) as Record<string, unknown>;
+      const charts = (backendData?.charts ?? {}) as Record<string, unknown>;
+      const tables = (backendData?.tables ?? {}) as Record<string, unknown>;
+
+      const query1 =
+        candidateObject('query1', 'q1', 'projectedSpendVsUsers', 'pilotGeneralStats', 'generalStats') ??
+        (rawData.q1 as Record<string, unknown> | undefined) ??
+        {};
+      const query2 =
+        candidateObject('query2', 'q2', 'lazinessTaxReduction', 'spendReduction', 'normalizedSpending') ??
+        (rawData.q2 as Record<string, unknown> | undefined) ??
+        {};
+
+      const query3FromTopLevel = candidateArray<Record<string, unknown>>('query3', 'q3', 'potentialSavingsUsers', 'highSpenders');
+      const query4FromTopLevel = candidateArray<Record<string, unknown>>('query4', 'q4', 'imminentRiskByCategory', 'riskByUrgency');
+      const query5FromTopLevel = candidateArray<Record<string, unknown>>('query5', 'q5', 'spendingConcentrationByCycle', 'subscriptionMetricsByCycle');
+
+      const query3 = query3FromTopLevel.length > 0
+        ? query3FromTopLevel
+        : asArray<Record<string, unknown>>(rawData.q3 ?? tables.users_above_average_spend);
+      const query4 = query4FromTopLevel.length > 0
+        ? query4FromTopLevel
+        : asArray<Record<string, unknown>>(rawData.q4 ?? charts.imminent_risk_by_category ?? tables.urgency_alerts);
+      const query5 = query5FromTopLevel.length > 0
+        ? query5FromTopLevel
+        : asArray<Record<string, unknown>>(rawData.q5 ?? charts.spending_concentration_by_cycle ?? tables.cycle_distribution);
 
       const projectedSpendVsUsers: ProjectedSpendVsUsers = {
-        totalPilotUsers: asNumber(query1.total_pilot_users ?? query1.totalPilotUsers ?? query1.total_users),
-        totalMonthlyCost: asNumber(query1.total_monthly_cost ?? query1.totalMonthlyCost ?? query1.total_monthly_spend),
-        averageSpendPerUser: asNumber(query1.average_spend_per_user ?? query1.averageSpendPerUser ?? query1.avg_subscription_cost)
+        totalPilotUsers: asNumber(
+          query1.total_pilot_users ??
+          query1.totalPilotUsers ??
+          query1.total_users ??
+          summaryCards.pilot_users
+        ),
+        totalMonthlyCost: asNumber(
+          query1.total_monthly_cost ??
+          query1.totalMonthlyCost ??
+          query1.total_monthly_spend ??
+          summaryCards.total_monthly_spend
+        ),
+        averageSpendPerUser: asNumber(
+          query1.average_spend_per_user ??
+          query1.averageSpendPerUser ??
+          query1.avg_subscription_cost ??
+          summaryCards.average_spend_per_user
+        )
       };
 
       const lazinessTaxReduction: LazinessTaxReduction = {
-        totalHistoricalMonthlyCost: asNumber(query2.total_gasto_historico_mensualizado ?? query2.totalHistoricalMonthlyCost),
-        monthlySavedMoney: asNumber(query2.dinero_mensual_ahorrado ?? query2.monthlySavedMoney),
-        spendReductionPercentage: asNumber(query2.porcentaje_reduccion_gasto ?? query2.spendReductionPercentage)
+        totalHistoricalMonthlyCost: asNumber(
+          query2.total_gasto_historico_mensualizado ??
+          query2.totalHistoricalMonthlyCost ??
+          query2.total_historic_monthly_spend
+        ),
+        monthlySavedMoney: asNumber(
+          query2.dinero_mensual_ahorrado ??
+          query2.monthlySavedMoney ??
+          query2.monthly_saved_money ??
+          summaryCards.monthly_saved_money
+        ),
+        spendReductionPercentage: asNumber(
+          query2.porcentaje_reduccion_gasto ??
+          query2.spendReductionPercentage ??
+          query2.spend_reduction_percentage ??
+          summaryCards.spend_reduction_percentage
+        )
       };
 
       const potentialSavingsUsers: PotentialSavingsUser[] = asArray<Record<string, unknown>>(query3).map((item) => ({
         fullName: String(item.full_name ?? item.fullName ?? 'Usuario sin nombre'),
         totalAmount: asNumber(item.monto_total ?? item.total_amount ?? item.totalAmount),
-        groupAverage: asNumber(item.promedio_grupal ?? item.group_average ?? item.groupAverage)
+        groupAverage: asNumber(item.promedio_grupal ?? item.group_average ?? item.groupAverage ?? item.global_average)
       }));
 
       const imminentRiskByCategory: ImminentRiskByCategory[] = asArray<Record<string, unknown>>(query4).map((item) => ({
@@ -207,7 +262,7 @@ export const AdminService = {
         cycleName: String(item.cycle_name ?? item.cycleName ?? 'Sin ciclo'),
         totalSubscriptions: asNumber(item.total_subscriptions ?? item.totalSubscriptions),
         totalGrossAmount: asNumber(item.total_gross_amount ?? item.totalGrossAmount),
-        totalExpensePercentage: asNumber(item.porcentaje_del_gasto_total ?? item.total_expense_percentage ?? item.totalExpensePercentage)
+        totalExpensePercentage: asNumber(item.porcentaje_del_gasto_total ?? item.total_expense_percentage ?? item.totalExpensePercentage ?? item.total_spend_percentage)
       }));
 
       return {
