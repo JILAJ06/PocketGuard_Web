@@ -262,8 +262,8 @@ export default function ReportesPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 text-sm">
                       {data.imminentRiskByCategory.length > 0 ? (
-                        data.imminentRiskByCategory.map((risk, idx: number) => (
-                          <tr key={idx} className="hover:bg-gray-50">
+                        data.imminentRiskByCategory.map((risk) => (
+                          <tr key={risk.categoryName} className="hover:bg-gray-50">
                             <td className="px-6 py-4 font-medium text-gray-800">{risk.categoryName}</td>
                             <td className="px-6 py-4">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
