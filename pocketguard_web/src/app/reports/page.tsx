@@ -62,31 +62,39 @@ export default function ReportesPage() {
   }, []);
 
   useEffect(() => {
-    console.log('🔍 Verificando autenticación...');
     const isAuthorized = sessionStorage.getItem('reportsAuth') === 'true';
-    console.log('🔐 Estado de autenticación:', {
-      isAuthorized,
-      reportsAuth: sessionStorage.getItem('reportsAuth'),
-      hasToken: !!sessionStorage.getItem('adminToken')
-    });
 
     if (!isAuthorized) {
-      console.log('❌ No autorizado, redirigiendo a login...');
       router.replace('/reports/login');
       return;
     }
 
-    console.log('✅ Autorizado, cargando dashboard...');
-    setEmail(sessionStorage.getItem('reportsEmail') || 'Usuario');
-    setIsAccessChecked(true);
-    loadReportData();
-  }, [router, loadReportData]);
+    queueMicrotask(() => {
+      setEmail(sessionStorage.getItem('reportsEmail') || 'admin');
+      setIsAccessChecked(true);
+    });
+  }, [router]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isAccessChecked) {
+        return;
+      }
+
+      setLoadingData(true);
+      const data = await AdminService.getDashboard();
+      setDashboardData(data);
+      setLoadingData(false);
+    };
+
+    loadData();
+  }, [isAccessChecked]);
 
   if (!isAccessChecked) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="flex justify-center h-64 items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-700"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-700" />
         </div>
       </div>
     );

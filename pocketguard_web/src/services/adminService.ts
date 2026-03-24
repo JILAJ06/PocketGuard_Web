@@ -1,3 +1,5 @@
+import { StrategicReportsApiResponse, StrategicReportsData } from '@/models/Reports';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface ProjectedSpendVsUsers {
@@ -40,35 +42,54 @@ export interface ReportsDashboardData {
   spendingConcentrationByCycle: SpendingConcentrationByCycle[];
 }
 
-interface ReminderDetail {
-  id: number;
-  userId: number;
-  type: string;
-  message: string;
-  scheduledAt: string;
-  sentAt?: string;
-  status: string;
-  userEmail?: string;
+export interface ReminderDetail {
+  notification_id: string;
+  subscription_id: string;
+  user_id: string;
+  service_name: string;
+  amount: number;
+  billing_cycle: string;
+  sent_at: string;
+  next_payment_date: string;
+  subscription_deleted_at: string | null;
+  action_status: string;
+  days_since_notification: number;
+  days_until_payment: number;
 }
 
-interface UserStats {
-  userId: number;
-  email: string;
-  totalExpenses: number;
-  totalIncome: number;
-  savingsRate: number;
-  categoryBreakdown: Array<{
-    category: string;
-    amount: number;
-    percentage: number;
-  }>;
-  monthlyTrend: Array<{
-    month: string;
-    expenses: number;
-    income: number;
-  }>;
-  activeSubscriptions: number;
-  lastActivity: string;
+interface ReminderDetailsPayload {
+  reminders: ReminderDetail[];
+  page: number;
+  limit: number;
+}
+
+export interface UserPilotStats {
+  user_id: string;
+  total_reminders_received: number;
+  reminders_marked_paid: number;
+  reminders_deleted: number;
+  reminders_ignored: number;
+  active_subscriptions: number;
+  canceled_subscriptions: number;
+  monthly_subscription_cost: number;
+  engagement_score: number;
+}
+
+interface UserPilotStatsPayload {
+  stats: UserPilotStats;
+}
+
+async function parseJsonSafe<T>(response: Response): Promise<T | null> {
+  const responseText = await response.text();
+  if (!responseText) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(responseText) as T;
+  } catch {
+    return null;
+  }
 }
 
 export const AdminService = {
@@ -89,10 +110,11 @@ export const AdminService = {
       const response = await fetch(`${API_URL}/api/admin/dashboard`, {
         method: 'GET',
         headers: {
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
-        cache: 'no-store' 
+        cache: 'no-store'
       });
 
       if (!response.ok) {
@@ -196,12 +218,12 @@ export const AdminService = {
         spendingConcentrationByCycle
       };
     } catch (error) {
-      console.error("AdminService Error (getDashboard):", error);
+      console.error('AdminService Error (getDashboard):', error);
       return null;
     }
   },
 
-  async getReminderDetails(page: number = 1, limit: number = 50): Promise<{ reminders: ReminderDetail[], total: number, page: number, totalPages: number } | null> {
+  async getReminderDetails(page: number = 1, limit: number = 50): Promise<ReminderDetailsPayload | null> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -211,24 +233,26 @@ export const AdminService = {
       const response = await fetch(`${API_URL}/api/admin/reminders?page=${page}&limit=${limit}`, {
         method: 'GET',
         headers: {
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         cache: 'no-store'
       });
 
-      if (!response.ok) {
-        throw new Error('Error fetching reminder details');
+      const result = await parseJsonSafe<ApiEnvelope<ReminderDetailsPayload>>(response);
+      if (!response.ok || !result?.success || !result.data) {
+        return null;
       }
-      
-      return await response.json();
+
+      return result.data;
     } catch (error) {
-      console.error("AdminService Error (getReminderDetails):", error);
+      console.error('AdminService Error (getReminderDetails):', error);
       return null;
     }
   },
 
-  async getUserStats(userId: number): Promise<UserStats | null> {
+  async getUserStats(userId: string): Promise<UserPilotStats | null> {
     try {
       const token = this.getToken();
       if (!token) {
@@ -238,19 +262,21 @@ export const AdminService = {
       const response = await fetch(`${API_URL}/api/admin/users/${userId}/stats`, {
         method: 'GET',
         headers: {
+          Accept: 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         },
         cache: 'no-store'
       });
 
-      if (!response.ok) {
-        throw new Error('Error fetching user stats');
+      const result = await parseJsonSafe<ApiEnvelope<UserPilotStatsPayload>>(response);
+      if (!response.ok || !result?.success || !result.data?.stats) {
+        return null;
       }
-      
-      return await response.json();
+
+      return result.data.stats;
     } catch (error) {
-      console.error("AdminService Error (getUserStats):", error);
+      console.error('AdminService Error (getUserStats):', error);
       return null;
     }
   }
