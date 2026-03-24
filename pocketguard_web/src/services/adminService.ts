@@ -100,8 +100,29 @@ export const AdminService = {
       }
       
       const result = await response.json();
-      const backendData = result?.data ?? result;
 
+      // Validate backend payload shape to avoid treating error envelopes as data
+      if (result && typeof result === 'object') {
+        // If the backend uses a { success, message, data } envelope and indicates failure
+        if ('success' in result && (result as any).success !== true) {
+          const message =
+            typeof (result as any).message === 'string'
+              ? (result as any).message
+              : 'Dashboard API returned an unsuccessful response';
+          throw new Error(message);
+        }
+      }
+
+      const backendData =
+        result && typeof result === 'object' && 'data' in (result as any)
+          ? (() => {
+              const data = (result as any).data;
+              if (data === null || data === undefined) {
+                throw new Error('Dashboard API returned no data');
+              }
+              return data;
+            })()
+          : result;
       const asNumber = (value: unknown): number => {
         const parsed = Number(value);
         return Number.isFinite(parsed) ? parsed : 0;
