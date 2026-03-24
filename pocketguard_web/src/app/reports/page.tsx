@@ -35,6 +35,14 @@ function formatCurrency(value: number): string {
   })}`;
 }
 
+function formatCurrencyCompact(value: number | string): string {
+  const numericValue = Number(value) || 0;
+  return `$${numericValue.toLocaleString('es-MX', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  })}`;
+}
+
 export default function ReportesPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -121,28 +129,28 @@ export default function ReportesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
               <DashboardCard 
                 icon={<CurrencyDollarIcon className="h-8 w-8 text-green-600" />}
-                title="Q1: Gasto Mensual Total" 
+                title="Gasto Mensual Total" 
                 value={formatCurrency(data.projectedSpendVsUsers.totalMonthlyCost)} 
                 desc={`${data.projectedSpendVsUsers.totalPilotUsers.toLocaleString('es-MX')} usuarios piloto`}
                 borderColor="border-green-500"
               />
               <DashboardCard 
                 icon={<ChartBarIcon className="h-8 w-8 text-blue-600" />}
-                title="Q1: Promedio por Usuario" 
+                title="Promedio por Usuario" 
                 value={formatCurrency(data.projectedSpendVsUsers.averageSpendPerUser)} 
                 desc="Magnitud del gasto hormiga por usuario"
                 borderColor="border-blue-500"
               />
               <DashboardCard 
                 icon={<UserGroupIcon className="h-8 w-8 text-indigo-600" />}
-                title="Q2: Reducción de Gasto" 
+                title="Reducción de Gasto" 
                 value={`${data.lazinessTaxReduction.spendReductionPercentage.toFixed(2)}%`} 
                 desc={`Ahorro mensual: ${formatCurrency(data.lazinessTaxReduction.monthlySavedMoney)}`}
                 borderColor="border-indigo-500"
               />
               <DashboardCard 
                 icon={<ExclamationTriangleIcon className="h-8 w-8 text-red-600" />}
-                title="Q4: Dinero en Riesgo (5 días)" 
+                title="Dinero en Riesgo (5 días)" 
                 value={formatCurrency(totalAtRisk)} 
                 desc={`${highAndCriticalSubscriptions.toLocaleString('es-MX')} suscripciones ALTA/CRÍTICA`}
                 borderColor="border-red-500"
@@ -151,16 +159,18 @@ export default function ReportesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Q5: Concentración del gasto por ciclo</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Concentración del gasto por ciclo</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.spendingConcentrationByCycle}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="cycleName" />
-                      <YAxis tickFormatter={(value) => `$${value}`} />
+                      <YAxis tickFormatter={formatCurrencyCompact} />
                       <RechartsTooltip 
-                        formatter={(value: number | string | undefined) => value !== undefined ? `$${Number(value).toLocaleString('es-MX')}` : '$0'}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        formatter={(value: number | string | undefined) => value !== undefined ? formatCurrency(Number(value)) : '$0.00'}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar dataKey="totalGrossAmount" name="Monto bruto mensualizado" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
@@ -170,16 +180,18 @@ export default function ReportesPage() {
               </div>
 
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Q4: Riesgo inminente por categoría</h3>
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Riesgo inminente por categoría</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.imminentRiskByCategory}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="categoryName" />
-                      <YAxis tickFormatter={(value) => `$${value}`} />
+                      <YAxis tickFormatter={formatCurrencyCompact} />
                       <RechartsTooltip 
-                        formatter={(value: number | string | undefined) => value !== undefined ? `$${Number(value).toLocaleString('es-MX')}` : '$0'}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        formatter={(value: number | string | undefined) => value !== undefined ? formatCurrency(Number(value)) : '$0.00'}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar dataKey="totalMoneyAtRisk" name="Dinero en riesgo" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -191,7 +203,7 @@ export default function ReportesPage() {
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
               <div className="p-6 border-b border-gray-50">
-                <h3 className="text-lg font-semibold text-gray-800">Q3: Usuarios por encima del promedio de gasto</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Usuarios por encima del promedio de gasto</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
@@ -228,7 +240,7 @@ export default function ReportesPage() {
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-800">Q4: Alertas de urgencia de pago</h3>
+                  <h3 className="text-lg font-semibold text-gray-800">Alertas de urgencia de pago</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -270,7 +282,7 @@ export default function ReportesPage() {
 
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-50">
-                  <h3 className="text-lg font-semibold text-gray-800">Q5: Distribución del gasto por ciclo</h3>
+                  <h3 className="text-lg font-semibold text-gray-800">Distribución del gasto por ciclo</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left">
@@ -319,12 +331,12 @@ function DashboardCard({ icon, title, value, desc, borderColor }: {
   borderColor: string;
 }) {
   return (
-    <div className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${borderColor} flex items-start space-x-4`}>
-      <div className="p-3 bg-gray-50 rounded-lg">{icon}</div>
-      <div>
-        <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wide">{title}</h3>
-        <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-        <p className="text-xs text-gray-400 mt-1">{desc}</p>
+    <div className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${borderColor} flex items-start space-x-4 min-w-0 overflow-hidden`}>
+      <div className="p-3 bg-gray-50 rounded-lg shrink-0">{icon}</div>
+      <div className="min-w-0 w-full">
+        <h3 className="text-gray-500 text-sm font-medium uppercase tracking-wide truncate">{title}</h3>
+        <p className="text-2xl xl:text-[2rem] font-bold text-gray-900 mt-1 leading-tight break-words">{value}</p>
+        <p className="text-xs text-gray-400 mt-1 break-words">{desc}</p>
       </div>
     </div>
   );
