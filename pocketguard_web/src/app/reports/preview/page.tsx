@@ -57,6 +57,16 @@ function formatCurrencyCompact(value: number | string): string {
 }
 
 export default function ReportesPreviewPage() {
+  // In production, do not expose the unauthenticated preview dashboard UI.
+  if (process.env.NODE_ENV === 'production') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center text-gray-500 text-sm">
+          Esta vista de previsualización no está disponible en producción.
+        </div>
+      </div>
+    );
+  }
   const data = PREVIEW_DATA;
 
   const totalAtRisk = useMemo(
