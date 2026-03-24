@@ -180,8 +180,11 @@ export default function ReportesPreviewPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 text-sm">
-                {data.potentialSavingsUsers.map((user, idx: number) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                {data.potentialSavingsUsers.map((user) => (
+                  <tr
+                    key={`${user.fullName}-${user.totalAmount}-${user.groupAverage}`}
+                    className="hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4 font-medium text-gray-800">{user.fullName}</td>
                     <td className="px-6 py-4 font-semibold text-gray-900">{formatCurrency(user.totalAmount)}</td>
                     <td className="px-6 py-4 text-gray-700">{formatCurrency(user.groupAverage)}</td>
