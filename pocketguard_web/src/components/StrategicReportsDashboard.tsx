@@ -40,7 +40,10 @@ const currencyFormatter = new Intl.NumberFormat('es-MX', {
 const numberFormatter = new Intl.NumberFormat('es-MX');
 
 function formatCurrency(value: number): string {
-  return currencyFormatter.format(Number(value || 0));
+  return `$${Number(value || 0).toLocaleString('es-MX', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}`;
 }
 
 function formatNumber(value: number): string {
@@ -61,6 +64,11 @@ function getUrgencyClass(urgency: string): string {
   return 'bg-blue-100 text-blue-700';
 }
 
+function normalizeCategoryName(categoryName: string | null | undefined): string {
+  const normalized = String(categoryName || '').trim();
+  return normalized.length > 0 ? normalized : 'Otros';
+}
+
 function SummaryCard({
   icon,
   title,
@@ -75,13 +83,13 @@ function SummaryCard({
   borderClass: string;
 }) {
   return (
-    <div className={`bg-white rounded-xl border-l-4 ${borderClass} p-5 shadow-sm border border-gray-100`}>
+    <div className={`bg-white rounded-xl border-l-4 ${borderClass} p-5 shadow-sm border border-gray-100 min-w-0 overflow-hidden`}>
       <div className="flex items-start gap-4">
-        <div className="rounded-lg bg-gray-50 p-2.5">{icon}</div>
-        <div>
-          <p className="text-sm font-semibold text-gray-500 uppercase">{title}</p>
-          <p className="text-4xl font-bold text-gray-900 mt-1">{value}</p>
-          <p className="text-sm text-gray-500 mt-1">{subtitle}</p>
+        <div className="rounded-lg bg-gray-50 p-2.5 shrink-0">{icon}</div>
+        <div className="min-w-0 w-full">
+          <p className="text-sm font-semibold text-gray-500 uppercase truncate">{title}</p>
+          <p className="text-2xl xl:text-4xl font-bold text-gray-900 mt-1 leading-tight break-words">{value}</p>
+          <p className="text-sm text-gray-500 mt-1 break-words">{subtitle}</p>
         </div>
       </div>
     </div>
@@ -115,7 +123,10 @@ function ExpensesRiskWeightChart({ riskData }: { riskData: StrategicExpenseRiskI
         <YAxis tickFormatter={(value) => `${value}%`} />
         <RechartsTooltip
           formatter={(value: number | string | undefined) => `${Number(value || 0).toFixed(2)}%`}
-          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px', color: '#111827' }}
+          labelStyle={{ color: '#111827', fontWeight: 700 }}
+          itemStyle={{ color: '#111827' }}
+          cursor={{ fill: 'rgba(168, 85, 247, 0.10)' }}
         />
         <Legend />
         <Bar name="Peso de riesgo" dataKey="risk_weight_percentage" fill="#a855f7" radius={[6, 6, 0, 0]} />
@@ -151,6 +162,74 @@ export default function StrategicReportsDashboard({
   const usersTable = data?.tables.users_above_average_spend || [];
   const urgencyTable = data?.tables.urgency_alerts || [];
   const generatedAt = data?.generated_at;
+
+  const subscriptionsRiskChart = React.useMemo(() => {
+    const grouped = new Map<string, { category_name: string; total_money_at_risk: number; subscription_count: number }>();
+
+    subscriptionsRisk.forEach((item) => {
+      const category = normalizeCategoryName(item.category_name);
+      const existing = grouped.get(category);
+      if (existing) {
+        existing.total_money_at_risk += Number(item.total_money_at_risk || 0);
+        existing.subscription_count += Number(item.subscription_count || 0);
+      } else {
+        grouped.set(category, {
+          category_name: category,
+          total_money_at_risk: Number(item.total_money_at_risk || 0),
+          subscription_count: Number(item.subscription_count || 0)
+        });
+      }
+    });
+
+    if (!grouped.has('Otros')) {
+      grouped.set('Otros', {
+        category_name: 'Otros',
+        total_money_at_risk: 0,
+        subscription_count: 0
+      });
+    }
+
+    return Array.from(grouped.values()).sort((a, b) => b.total_money_at_risk - a.total_money_at_risk);
+  }, [subscriptionsRisk]);
+
+  const expensesRiskChart = React.useMemo(() => {
+    const grouped = new Map<string, { category_id: string; category_name: string; monthly_total_amount: number; risk_amount_5d: number }>();
+
+    expensesRisk.forEach((item) => {
+      const category = normalizeCategoryName(item.category_name);
+      const existing = grouped.get(category);
+      if (existing) {
+        existing.monthly_total_amount += Number(item.monthly_total_amount || 0);
+        existing.risk_amount_5d += Number(item.risk_amount_5d || 0);
+      } else {
+        grouped.set(category, {
+          category_id: item.category_id || category,
+          category_name: category,
+          monthly_total_amount: Number(item.monthly_total_amount || 0),
+          risk_amount_5d: Number(item.risk_amount_5d || 0)
+        });
+      }
+    });
+
+    if (!grouped.has('Otros')) {
+      grouped.set('Otros', {
+        category_id: 'otros',
+        category_name: 'Otros',
+        monthly_total_amount: 0,
+        risk_amount_5d: 0
+      });
+    }
+
+    const rows = Array.from(grouped.values());
+    const totalRisk = rows.reduce((sum, row) => sum + row.risk_amount_5d, 0);
+
+    return rows
+      .map((row) => ({
+        ...row,
+        risk_weight_percentage: totalRisk > 0 ? (row.risk_amount_5d / totalRisk) * 100 : 0
+      }))
+      .sort((a, b) => b.risk_amount_5d - a.risk_amount_5d);
+  }, [expensesRisk]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">
@@ -254,7 +333,7 @@ export default function StrategicReportsDashboard({
                 />
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <ChartCard title="Concentracion del gasto por ciclo (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={subscriptionsCycle}>
@@ -263,7 +342,9 @@ export default function StrategicReportsDashboard({
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar name="Monto bruto mensualizado" dataKey="total_gross_amount" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
@@ -273,13 +354,15 @@ export default function StrategicReportsDashboard({
 
                 <ChartCard title="Riesgo inminente por categoria (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={subscriptionsRisk}>
+                    <BarChart data={subscriptionsRiskChart}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="category_name" />
+                      <XAxis dataKey="category_name" interval={0} tickMargin={8} />
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar name="Dinero en riesgo" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
@@ -322,16 +405,18 @@ export default function StrategicReportsDashboard({
                 />
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 <ChartCard title="Monto mensual por categoria (gastos)">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={expensesRisk}>
+                    <BarChart data={expensesRiskChart}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="category_name" />
+                      <XAxis dataKey="category_name" interval={0} tickMargin={8} />
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar name="Monto mensual" dataKey="monthly_total_amount" fill="#14b8a6" radius={[6, 6, 0, 0]} />
@@ -341,13 +426,15 @@ export default function StrategicReportsDashboard({
 
                 <ChartCard title="Riesgo a 5 dias por categoria (gastos)">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={expensesRisk}>
+                    <BarChart data={expensesRiskChart}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="category_name" />
+                      <XAxis dataKey="category_name" interval={0} tickMargin={8} />
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '8px', color: '#f8fafc' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
+                        itemStyle={{ color: '#f8fafc' }}
                       />
                       <Legend />
                       <Bar name="Riesgo a 5 dias" dataKey="risk_amount_5d" fill="#f97316" radius={[6, 6, 0, 0]} />
@@ -359,14 +446,14 @@ export default function StrategicReportsDashboard({
               <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
                 <h3 className="text-xl font-bold text-gray-900 mb-3">Peso de riesgo por categoria (gastos)</h3>
                 <div className="h-80">
-                  <ExpensesRiskWeightChart riskData={expensesRisk} />
+                  <ExpensesRiskWeightChart riskData={expensesRiskChart} />
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
               <div className="p-5 border-b border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900">Q3: Usuarios por encima del promedio de gasto</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">Usuarios por encima del promedio de gasto</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
