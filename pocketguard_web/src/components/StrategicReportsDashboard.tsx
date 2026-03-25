@@ -18,7 +18,7 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
-import { StrategicReportsData } from '@/models/Reports';
+import { StrategicExpenseRiskItem, StrategicReportsData } from '@/models/Reports';
 
 interface StrategicReportsDashboardProps {
   title: string;
@@ -88,6 +88,42 @@ function SummaryCard({
   );
 }
 
+function SectionTitle({ title, badge }: { title: string; badge: string }) {
+  return (
+    <div className="flex items-center justify-between">
+      <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">{badge}</span>
+    </div>
+  );
+}
+
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+      <h3 className="text-xl font-bold text-gray-900 mb-3">{title}</h3>
+      <div className="h-80">{children}</div>
+    </div>
+  );
+}
+
+function ExpensesRiskWeightChart({ riskData }: { riskData: StrategicExpenseRiskItem[] }) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={riskData}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="category_name" />
+        <YAxis tickFormatter={(value) => `${value}%`} />
+        <RechartsTooltip
+          formatter={(value: number | string | undefined) => `${Number(value || 0).toFixed(2)}%`}
+          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+        />
+        <Legend />
+        <Bar name="Peso de riesgo" dataKey="risk_weight_percentage" fill="#a855f7" radius={[6, 6, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 export default function StrategicReportsDashboard({
   title,
   subtitle,
@@ -98,8 +134,20 @@ export default function StrategicReportsDashboard({
   loading
 }: StrategicReportsDashboardProps) {
   const summaryCards = data?.summary_cards;
-  const cycleChartData = data?.charts.spending_concentration_by_cycle || [];
-  const riskChartData = data?.charts.imminent_risk_by_category || [];
+
+  const subscriptionsSummary = data?.source_breakdown?.subscriptions;
+  const expensesSummary = data?.source_breakdown?.expenses;
+
+  const subscriptionsCycle = data?.charts_separated?.subscriptions.spending_concentration_by_cycle
+    || data?.charts.spending_concentration_by_cycle
+    || [];
+  const subscriptionsRisk = data?.charts_separated?.subscriptions.imminent_risk_by_category
+    || data?.charts.imminent_risk_by_category
+    || [];
+  const expensesRisk = data?.charts_separated?.expenses.risk_by_category
+    || data?.source_breakdown?.expenses.risk_by_category
+    || [];
+
   const usersTable = data?.tables.users_above_average_spend || [];
   const urgencyTable = data?.tables.urgency_alerts || [];
   const generatedAt = data?.generated_at;
@@ -139,43 +187,77 @@ export default function StrategicReportsDashboard({
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-              <SummaryCard
-                icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
-                title="Q1: Gasto mensual total"
-                value={formatCurrency(summaryCards?.total_monthly_spend || 0)}
-                subtitle={`${formatNumber(summaryCards?.pilot_users || 0)} usuarios piloto`}
-                borderClass="border-emerald-500"
-              />
-              <SummaryCard
-                icon={<ChartBarIcon className="h-7 w-7 text-blue-600" />}
-                title="Q1: Promedio por usuario"
-                value={formatCurrency(summaryCards?.average_spend_per_user || 0)}
-                subtitle="Magnitud del gasto hormiga por usuario"
-                borderClass="border-blue-500"
-              />
-              <SummaryCard
-                icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
-                title="Q2: Reduccion de gasto"
-                value={`${Number(summaryCards?.spend_reduction_percentage || 0).toFixed(2)}%`}
-                subtitle={`Ahorro mensual: ${formatCurrency(summaryCards?.monthly_saved_money || 0)}`}
-                borderClass="border-indigo-500"
-              />
-              <SummaryCard
-                icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                title="Q4: Dinero en riesgo (5 dias)"
-                value={formatCurrency(summaryCards?.total_money_at_risk_5d || 0)}
-                subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} suscripciones ALTA/CRITICA`}
-                borderClass="border-red-500"
-              />
+            <div className="space-y-3">
+              <SectionTitle title="Resumen global" badge="TOTAL" />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                <SummaryCard
+                  icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
+                  title="Gasto mensual total"
+                  value={formatCurrency(summaryCards?.total_monthly_spend || 0)}
+                  subtitle={`${formatNumber(summaryCards?.pilot_users || 0)} usuarios piloto`}
+                  borderClass="border-emerald-500"
+                />
+                <SummaryCard
+                  icon={<ChartBarIcon className="h-7 w-7 text-blue-600" />}
+                  title="Promedio por usuario"
+                  value={formatCurrency(summaryCards?.average_spend_per_user || 0)}
+                  subtitle="Suscripciones + gastos"
+                  borderClass="border-blue-500"
+                />
+                <SummaryCard
+                  icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
+                  title="Reduccion de gasto"
+                  value={`${Number(summaryCards?.spend_reduction_percentage || 0).toFixed(2)}%`}
+                  subtitle={`Ahorro mensual: ${formatCurrency(summaryCards?.monthly_saved_money || 0)}`}
+                  borderClass="border-indigo-500"
+                />
+                <SummaryCard
+                  icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
+                  title="Dinero en riesgo (5 dias)"
+                  value={formatCurrency(summaryCards?.total_money_at_risk_5d || 0)}
+                  subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} items en riesgo`}
+                  borderClass="border-red-500"
+                />
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Q5: Concentracion del gasto por ciclo</h3>
-                <div className="h-80">
+            <div className="space-y-3 pt-2">
+              <SectionTitle title="Analitica de suscripciones" badge="SUSCRIPCIONES" />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                <SummaryCard
+                  icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
+                  title="Gasto mensual"
+                  value={formatCurrency(subscriptionsSummary?.total_monthly_spend || 0)}
+                  subtitle={`${formatNumber(subscriptionsSummary?.pilot_users || 0)} usuarios piloto`}
+                  borderClass="border-emerald-500"
+                />
+                <SummaryCard
+                  icon={<ChartBarIcon className="h-7 w-7 text-blue-600" />}
+                  title="Promedio por usuario"
+                  value={formatCurrency(subscriptionsSummary?.average_spend_per_user || 0)}
+                  subtitle="Promedio en suscripciones"
+                  borderClass="border-blue-500"
+                />
+                <SummaryCard
+                  icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
+                  title="Reduccion de gasto"
+                  value={`${Number(subscriptionsSummary?.spend_reduction_percentage || 0).toFixed(2)}%`}
+                  subtitle={`Ahorro mensual: ${formatCurrency(subscriptionsSummary?.monthly_saved_money || 0)}`}
+                  borderClass="border-indigo-500"
+                />
+                <SummaryCard
+                  icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
+                  title="Dinero en riesgo (5 dias)"
+                  value={formatCurrency(subscriptionsSummary?.total_money_at_risk_5d || 0)}
+                  subtitle={`${formatNumber(subscriptionsSummary?.risky_subscriptions || 0)} suscripciones ALTA/CRITICA`}
+                  borderClass="border-red-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <ChartCard title="Concentracion del gasto por ciclo (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={cycleChartData}>
+                    <BarChart data={subscriptionsCycle}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="cycle_name" />
                       <YAxis tickFormatter={(value) => `$${value}`} />
@@ -187,14 +269,11 @@ export default function StrategicReportsDashboard({
                       <Bar name="Monto bruto mensualizado" dataKey="total_gross_amount" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
-                </div>
-              </div>
+                </ChartCard>
 
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
-                <h3 className="text-2xl font-bold text-gray-900 mb-3">Q4: Riesgo inminente por categoria</h3>
-                <div className="h-80">
+                <ChartCard title="Riesgo inminente por categoria (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={riskChartData}>
+                    <BarChart data={subscriptionsRisk}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
                       <XAxis dataKey="category_name" />
                       <YAxis tickFormatter={(value) => `$${value}`} />
@@ -206,6 +285,81 @@ export default function StrategicReportsDashboard({
                       <Bar name="Dinero en riesgo" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
+                </ChartCard>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <SectionTitle title="Analitica de gastos" badge="GASTOS" />
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+                <SummaryCard
+                  icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
+                  title="Gasto mensual"
+                  value={formatCurrency(expensesSummary?.total_monthly_spend || 0)}
+                  subtitle={`${formatNumber(expensesSummary?.active_users || 0)} usuarios activos`}
+                  borderClass="border-emerald-500"
+                />
+                <SummaryCard
+                  icon={<ChartBarIcon className="h-7 w-7 text-blue-600" />}
+                  title="Promedio por usuario"
+                  value={formatCurrency(expensesSummary?.average_spend_per_user || 0)}
+                  subtitle="Promedio en gastos"
+                  borderClass="border-blue-500"
+                />
+                <SummaryCard
+                  icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
+                  title="Categorias en riesgo"
+                  value={formatNumber(expensesRisk.length)}
+                  subtitle="Categorias con riesgo en 5 dias"
+                  borderClass="border-indigo-500"
+                />
+                <SummaryCard
+                  icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
+                  title="Dinero en riesgo (5 dias)"
+                  value={formatCurrency(expensesSummary?.total_money_at_risk_5d || 0)}
+                  subtitle="Riesgo proveniente de gastos"
+                  borderClass="border-red-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <ChartCard title="Monto mensual por categoria (gastos)">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={expensesRisk}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="category_name" />
+                      <YAxis tickFormatter={(value) => `$${value}`} />
+                      <RechartsTooltip
+                        formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
+                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                      />
+                      <Legend />
+                      <Bar name="Monto mensual" dataKey="monthly_total_amount" fill="#14b8a6" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                <ChartCard title="Riesgo a 5 dias por categoria (gastos)">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={expensesRisk}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="category_name" />
+                      <YAxis tickFormatter={(value) => `$${value}`} />
+                      <RechartsTooltip
+                        formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
+                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                      />
+                      <Legend />
+                      <Bar name="Riesgo a 5 dias" dataKey="risk_amount_5d" fill="#f97316" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+              </div>
+
+              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
+                <h3 className="text-xl font-bold text-gray-900 mb-3">Peso de riesgo por categoria (gastos)</h3>
+                <div className="h-80">
+                  <ExpensesRiskWeightChart riskData={expensesRisk} />
                 </div>
               </div>
             </div>

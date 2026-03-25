@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { StrategicReportsData } from '@/models/Reports';
 import { AdminService } from '@/services/adminService';
-import StrategicReportsDashboard from '@/components/StrategicReportsDashboard';
+import StrategicReportsDashboard from '../../components/StrategicReportsDashboard';
 
 export default function ReportesPage() {
   const router = useRouter();

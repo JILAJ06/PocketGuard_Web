@@ -58,11 +58,51 @@ export interface StrategicQ3Item {
   difference: number;
 }
 
+export interface StrategicExpenseRiskItem {
+  category_id: string;
+  category_name: string;
+  monthly_total_amount: number;
+  risk_amount_5d: number;
+  risk_weight_percentage: number;
+}
+
+export interface StrategicSubscriptionBreakdown {
+  total_monthly_spend: number;
+  average_spend_per_user: number;
+  spend_reduction_percentage: number;
+  total_money_at_risk_5d: number;
+  pilot_users: number;
+  monthly_saved_money: number;
+  risky_subscriptions: number;
+}
+
+export interface StrategicExpenseBreakdown {
+  total_monthly_spend: number;
+  average_spend_per_user: number;
+  active_users: number;
+  total_money_at_risk_5d: number;
+  risk_by_category: StrategicExpenseRiskItem[];
+}
+
 export interface StrategicReportsData {
   summary_cards: StrategicSummaryCards;
+  source_breakdown?: {
+    subscriptions: StrategicSubscriptionBreakdown;
+    expenses: StrategicExpenseBreakdown;
+  };
   charts: {
     spending_concentration_by_cycle: StrategicQ5Item[];
     imminent_risk_by_category: StrategicQ4Item[];
+  };
+  charts_separated?: {
+    subscriptions: {
+      spending_concentration_by_cycle: StrategicQ5Item[];
+      imminent_risk_by_category: StrategicQ4Item[];
+    };
+    expenses: {
+      risk_by_category: StrategicExpenseRiskItem[];
+      note?: string;
+    };
   };
   tables: {
     users_above_average_spend: StrategicQ3Item[];

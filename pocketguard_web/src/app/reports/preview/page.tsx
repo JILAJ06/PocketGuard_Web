@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import StrategicReportsDashboard from '@/components/StrategicReportsDashboard';
+import StrategicReportsDashboard from '../../../components/StrategicReportsDashboard';
 import { AdminService } from '@/services/adminService';
 import { StrategicReportsData } from '@/models/Reports';
 
