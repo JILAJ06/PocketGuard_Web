@@ -30,17 +30,11 @@ interface StrategicReportsDashboardProps {
   loading: boolean;
 }
 
-const currencyFormatter = new Intl.NumberFormat('es-MX', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
-});
-
 const numberFormatter = new Intl.NumberFormat('es-MX');
 
 function formatCurrency(value: number): string {
-  return currencyFormatter.format(Number(value || 0));
+  const num = Number(value || 0);
+  return `$${num.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function formatNumber(value: number): string {
@@ -115,7 +109,9 @@ function ExpensesRiskWeightChart({ riskData }: { riskData: StrategicExpenseRiskI
         <YAxis tickFormatter={(value) => `${value}%`} />
         <RechartsTooltip
           formatter={(value: number | string | undefined) => `${Number(value || 0).toFixed(2)}%`}
-          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          contentStyle={{ backgroundColor: '#ffffff', color: '#111827', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          labelStyle={{ color: '#111827', fontWeight: 700 }}
+          itemStyle={{ color: '#111827' }}
         />
         <Legend />
         <Bar name="Peso de riesgo" dataKey="risk_weight_percentage" fill="#a855f7" radius={[6, 6, 0, 0]} />
@@ -264,7 +260,7 @@ export default function StrategicReportsDashboard({
                 />
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <ChartCard title="Concentracion del gasto por ciclo (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={subscriptionsCycle}>
@@ -273,7 +269,8 @@ export default function StrategicReportsDashboard({
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
                       <Bar name="Monto bruto mensualizado" dataKey="total_gross_amount" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
@@ -289,7 +286,8 @@ export default function StrategicReportsDashboard({
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
                       <Bar name="Dinero en riesgo" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
@@ -342,7 +340,7 @@ export default function StrategicReportsDashboard({
                 />
               </div>
 
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="space-y-6">
                 <ChartCard title="Monto mensual por categoria (gastos)">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={expensesRisk}>
@@ -351,7 +349,8 @@ export default function StrategicReportsDashboard({
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
                       <Bar name="Monto mensual" dataKey="monthly_total_amount" fill="#14b8a6" radius={[6, 6, 0, 0]} />
@@ -367,7 +366,8 @@ export default function StrategicReportsDashboard({
                       <YAxis tickFormatter={(value) => `$${value}`} />
                       <RechartsTooltip
                         formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
                       <Bar name="Riesgo a 5 dias" dataKey="risk_amount_5d" fill="#f97316" radius={[6, 6, 0, 0]} />
@@ -420,7 +420,7 @@ export default function StrategicReportsDashboard({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-gray-100">
                   <h3 className="text-xl font-bold text-gray-900">Alertas de urgencia</h3>
