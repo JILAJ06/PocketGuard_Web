@@ -129,6 +129,7 @@ export default function StrategicReportsDashboard({
   data,
   loading
 }: StrategicReportsDashboardProps) {
+  const [isGuideOpen, setIsGuideOpen] = React.useState(false);
   const summaryCards = data?.summary_cards;
 
   const subscriptionsSummary = data?.source_breakdown?.subscriptions;
@@ -151,26 +152,134 @@ export default function StrategicReportsDashboard({
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">{title}</h1>
-            <p className="text-gray-500 text-lg mt-1">{subtitle}</p>
-          </div>
+        <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">PocketGuard</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">{title}</h1>
+              <p className="text-gray-500 text-base md:text-lg mt-1">{subtitle}</p>
 
-          <div className="flex items-center gap-4">
-            {helperLabel ? <span className="text-sm text-gray-500">{helperLabel}</span> : null}
-            {email ? <span className="text-sm text-gray-700">Sesion: <strong>{email}</strong></span> : null}
-            {onLogout ? (
+              {(helperLabel || email) ? (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {helperLabel ? (
+                    <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                      {helperLabel}
+                    </span>
+                  ) : null}
+                  {email ? (
+                    <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                      Sesion: {email}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex shrink-0 flex-wrap items-center gap-2">
               <button
-                onClick={onLogout}
-                className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-red-600 transition"
+                type="button"
+                onClick={() => setIsGuideOpen(true)}
+                className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                Salir
+                Como leer este reporte
               </button>
-            ) : null}
+              {onLogout ? (
+                <button
+                  onClick={onLogout}
+                  className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
+                >
+                  <ArrowRightOnRectangleIcon className="h-5 w-5" />
+                  Salir
+                </button>
+              ) : null}
+            </div>
           </div>
         </div>
+
+        {isGuideOpen ? (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+            onClick={() => setIsGuideOpen(false)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Guia de lectura de reportes"
+              className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Guia rapida del reporte</h2>
+                  <p className="mt-1 text-sm text-gray-500">Aqui puedes ver rapido si la prueba esta logrando ahorro en suscripciones.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsGuideOpen(false)}
+                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                >
+                  Cerrar
+                </button>
+              </div>
+
+              <div className="space-y-4 text-sm text-gray-700">
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">1. Resumen global</h3>
+                  <p className="mt-1">Es la vista general del piloto. Te ayuda a responder rapido: cuanto se gasta hoy, cuanto gasta cada usuario y cuanto dinero aun se puede evitar.</p>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">2. Analitica de suscripciones</h3>
+                  <p className="mt-1">Esta es la parte mas importante para la hipotesis. Sirve para comprobar si las alertas estan bajando el gasto en suscripciones de verdad.</p>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">3. Grafica de oportunidad de ahorro</h3>
+                  <p className="mt-1">Muestra en que categorias esta el dinero que se podria cobrar en los proximos 5 dias. Te sirve para priorizar acciones hoy: que cancelar, pausar o revisar primero para evitar ese cobro.</p>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">4. Alertas preventivas priorizadas</h3>
+                  <p className="mt-1">Lista de accion inmediata: que categoria esta en riesgo, cuantas suscripciones hay y cuanto dinero se perderia si no se hace nada.</p>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">Que significa cada numero (Resumen global)</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    <li><strong>Gasto mensual total:</strong> cuanto dinero se esta yendo cada mes. Sirve para dimensionar el problema.</li>
+                    <li><strong>Promedio por usuario:</strong> cuanto gasta en promedio cada persona. Sirve para comparar grupos o periodos.</li>
+                    <li><strong>Oportunidad de ahorro (5 dias):</strong> dinero que aun puedes evitar si actuas antes del proximo cobro.</li>
+                  </ul>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">Que significa cada numero (Suscripciones)</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    <li><strong>Gasto mensual:</strong> cuanto se paga al mes en suscripciones activas.</li>
+                    <li><strong>Promedio por usuario:</strong> cuanto paga en suscripciones cada usuario en promedio.</li>
+                    <li><strong>Reduccion en suscripciones:</strong> cuanto bajo el gasto frente al periodo base. Es el KPI principal de la hipotesis.</li>
+                    <li><strong>Oportunidad de ahorro (5 dias):</strong> monto que se puede evitar si se actua antes de la renovacion.</li>
+                  </ul>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900">Como leer la grafica de prioridad de ahorro</h3>
+                  <ul className="mt-2 list-disc space-y-1 pl-5">
+                    <li><strong>Eje X:</strong> categoria de suscripcion (por ejemplo entretenimiento, productividad, etc.).</li>
+                    <li><strong>Eje Y:</strong> dinero en monto de ahorro potencial.</li>
+                    <li><strong>Barra mas alta:</strong> categoria donde conviene actuar primero para ahorrar mas.</li>
+                    <li><strong>Uso practico:</strong> priorizar cancelaciones o cambios empezando por la barra mas alta.</li>
+                  </ul>
+                </div>
+
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+                  <h3 className="font-semibold text-blue-900">Como se valida la hipotesis</h3>
+                  <p className="mt-1 text-blue-800">Mira el valor de Reduccion en suscripciones. Si es 20% o mas, la hipotesis principal se cumple.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {loading ? (
           <div className="flex justify-center items-center h-64 bg-white rounded-xl border border-gray-100 shadow-sm">
@@ -185,7 +294,7 @@ export default function StrategicReportsDashboard({
           <>
             <div className="space-y-3">
               <SectionTitle title="Resumen global" badge="TOTAL" />
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                 <SummaryCard
                   icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
                   title="Gasto mensual total"
@@ -201,27 +310,10 @@ export default function StrategicReportsDashboard({
                   borderClass="border-blue-500"
                 />
                 <SummaryCard
-                  icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
-                  title="Reduccion de gasto"
-                  value={`${Number(
-                    subscriptionsSummary && expensesSummary
-                      ? ((subscriptionsSummary.monthly_saved_money + (expensesSummary.monthly_saved_money || 0)) /
-                         ((subscriptionsSummary.total_monthly_spend + expensesSummary.total_monthly_spend) +
-                          (subscriptionsSummary.monthly_saved_money + (expensesSummary.monthly_saved_money || 0)))) * 100
-                      : summaryCards?.spend_reduction_percentage || 0
-                  ).toFixed(2)}%`}
-                  subtitle={`Ahorro mensual: ${formatCurrency(
-                    subscriptionsSummary && expensesSummary
-                      ? subscriptionsSummary.monthly_saved_money + (expensesSummary.monthly_saved_money || 0)
-                      : summaryCards?.monthly_saved_money || 0
-                  )}`}
-                  borderClass="border-indigo-500"
-                />
-                <SummaryCard
                   icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                  title="Dinero en riesgo (5 dias)"
+                  title="Oportunidad de ahorro (próximos 5 días)"
                   value={formatCurrency(summaryCards?.total_money_at_risk_5d || 0)}
-                  subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} items en riesgo`}
+                  subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} items alertados`}
                   borderClass="border-red-500"
                 />
               </div>
@@ -246,14 +338,14 @@ export default function StrategicReportsDashboard({
                 />
                 <SummaryCard
                   icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
-                  title="Reduccion de gasto"
+                  title="Reduccion en suscripciones"
                   value={`${Number(subscriptionsSummary?.spend_reduction_percentage || 0).toFixed(2)}%`}
                   subtitle={`Ahorro mensual: ${formatCurrency(subscriptionsSummary?.monthly_saved_money || 0)}`}
                   borderClass="border-indigo-500"
                 />
                 <SummaryCard
                   icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                  title="Dinero en riesgo (5 dias)"
+                  title="Oportunidad de ahorro (próximos 5 días)"
                   value={formatCurrency(subscriptionsSummary?.total_money_at_risk_5d || 0)}
                   subtitle={`${formatNumber(subscriptionsSummary?.risky_subscriptions || 0)} suscripciones ALTA/CRITICA`}
                   borderClass="border-red-500"
@@ -261,24 +353,7 @@ export default function StrategicReportsDashboard({
               </div>
 
               <div className="space-y-6">
-                <ChartCard title="Concentracion del gasto por ciclo (suscripciones)">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={subscriptionsCycle}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="cycle_name" />
-                      <YAxis tickFormatter={(value) => `$${value}`} />
-                      <RechartsTooltip
-                        formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
-                      />
-                      <Legend />
-                      <Bar name="Monto bruto mensualizado" dataKey="total_gross_amount" fill="#0ea5e9" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartCard>
-
-                <ChartCard title="Riesgo inminente por categoria (suscripciones)">
+                <ChartCard title="Prioridad de ahorro por categoria (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={subscriptionsRisk}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -290,140 +365,19 @@ export default function StrategicReportsDashboard({
                         labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
-                      <Bar name="Dinero en riesgo" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
+                      <Bar name="Oportunidad de ahorro" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartCard>
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
-              <SectionTitle title="Analitica de gastos" badge="GASTOS" />
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
-                <SummaryCard
-                  icon={<BanknotesIcon className="h-7 w-7 text-emerald-600" />}
-                  title="Gasto mensual"
-                  value={formatCurrency(expensesSummary?.total_monthly_spend || 0)}
-                  subtitle={`${formatNumber(expensesSummary?.active_users || 0)} usuarios activos`}
-                  borderClass="border-emerald-500"
-                />
-                <SummaryCard
-                  icon={<ChartBarIcon className="h-7 w-7 text-blue-600" />}
-                  title="Promedio por usuario"
-                  value={formatCurrency(expensesSummary?.average_spend_per_user || 0)}
-                  subtitle="Promedio en gastos"
-                  borderClass="border-blue-500"
-                />
-                <SummaryCard
-                  icon={<UserGroupIcon className="h-7 w-7 text-indigo-600" />}
-                  title="Categoria con mayor monto"
-                  value={formatCurrency(
-                    expensesRisk.length > 0
-                      ? Math.max(...expensesRisk.map((item) => item.monthly_total_amount))
-                      : 0
-                  )}
-                  subtitle={
-                    expensesRisk.length > 0
-                      ? expensesRisk.find(
-                          (item) => item.monthly_total_amount === Math.max(...expensesRisk.map((i) => i.monthly_total_amount))
-                        )?.category_name || 'Sin categoría'
-                      : 'Sin datos'
-                  }
-                  borderClass="border-indigo-500"
-                />
-                <SummaryCard
-                  icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                  title="Dinero en riesgo (5 dias)"
-                  value={formatCurrency(expensesSummary?.total_money_at_risk_5d || 0)}
-                  subtitle="Riesgo proveniente de gastos"
-                  borderClass="border-red-500"
-                />
-              </div>
 
-              <div className="space-y-6">
-                <ChartCard title="Monto mensual por categoria (gastos)">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={expensesRisk}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="category_name" />
-                      <YAxis tickFormatter={(value) => `$${value}`} />
-                      <RechartsTooltip
-                        formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
-                      />
-                      <Legend />
-                      <Bar name="Monto mensual" dataKey="monthly_total_amount" fill="#14b8a6" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartCard>
-
-                <ChartCard title="Riesgo a 5 dias por categoria (gastos)">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={expensesRisk}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                      <XAxis dataKey="category_name" />
-                      <YAxis tickFormatter={(value) => `$${value}`} />
-                      <RechartsTooltip
-                        formatter={(value: number | string | undefined) => formatCurrency(Number(value || 0))}
-                        contentStyle={{ backgroundColor: '#0f172a', color: '#f8fafc', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                        labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
-                      />
-                      <Legend />
-                      <Bar name="Riesgo a 5 dias" dataKey="risk_amount_5d" fill="#f97316" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartCard>
-              </div>
-
-              <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Peso de riesgo por categoria (gastos)</h3>
-                <div className="h-80">
-                  <ExpensesRiskWeightChart riskData={expensesRisk} />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-5 border-b border-gray-100">
-                <h3 className="text-2xl font-bold text-gray-900">Q3: Usuarios por encima del promedio de gasto</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
-                    <tr>
-                      <th className="px-6 py-4">Usuario</th>
-                      <th className="px-6 py-4">Monto total</th>
-                      <th className="px-6 py-4">Promedio global</th>
-                      <th className="px-6 py-4">Diferencia</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 text-gray-700">
-                    {usersTable.length > 0 ? (
-                      usersTable.map((user) => (
-                        <tr key={user.user_id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 font-medium">{user.full_name || 'Sin nombre'}</td>
-                          <td className="px-6 py-4">{formatCurrency(user.total_amount)}</td>
-                          <td className="px-6 py-4">{formatCurrency(user.global_average)}</td>
-                          <td className="px-6 py-4 font-semibold text-blue-700">{formatCurrency(user.difference)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
-                          No hay usuarios en este corte.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
 
             <div className="space-y-6">
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900">Alertas de urgencia</h3>
+                  <h3 className="text-xl font-bold text-gray-900">Alertas preventivas priorizadas</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
@@ -461,41 +415,6 @@ export default function StrategicReportsDashboard({
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100">
-                  <h3 className="text-xl font-bold text-gray-900">Distribucion por ciclo</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
-                      <tr>
-                        <th className="px-6 py-4">Ciclo</th>
-                        <th className="px-6 py-4">Suscripciones</th>
-                        <th className="px-6 py-4">Monto bruto</th>
-                        <th className="px-6 py-4">Participacion</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 text-gray-700">
-                      {(data.tables.cycle_distribution || []).length > 0 ? (
-                        data.tables.cycle_distribution.map((item, idx) => (
-                          <tr key={`${item.cycle_name}-${idx}`} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 font-medium">{item.cycle_name}</td>
-                            <td className="px-6 py-4">{formatNumber(item.total_subscriptions)}</td>
-                            <td className="px-6 py-4">{formatCurrency(item.total_gross_amount)}</td>
-                            <td className="px-6 py-4 text-blue-700 font-semibold">{item.total_spend_percentage.toFixed(2)}%</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
-                            Sin datos de distribucion.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
 
             {generatedAt ? (
