@@ -81,6 +81,7 @@ export interface StrategicExpenseBreakdown {
   average_spend_per_user: number;
   active_users: number;
   total_money_at_risk_5d: number;
+  monthly_saved_money: number;
   risk_by_category: StrategicExpenseRiskItem[];
 }
 
