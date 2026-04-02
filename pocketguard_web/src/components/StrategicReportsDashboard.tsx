@@ -234,8 +234,8 @@ export default function StrategicReportsDashboard({
                 </div>
 
                 <div className="rounded-xl border border-gray-200 p-4">
-                  <h3 className="font-semibold text-gray-900">3. Grafica de oportunidad de ahorro</h3>
-                  <p className="mt-1">Muestra en que categorias esta el dinero que se podria cobrar en los proximos 5 dias. Te sirve para priorizar acciones hoy: que cancelar, pausar o revisar primero para evitar ese cobro.</p>
+                  <h3 className="font-semibold text-gray-900">3. Grafica de proyeccion de gasto en riesgo</h3>
+                  <p className="mt-1">Muestra en que categorias esta el monto estimado que podria cobrarse en los proximos 5 dias. Es una proyeccion basada en el patron de gasto de los ultimos 30 dias, no un cobro bancario confirmado.</p>
                 </div>
 
                 <div className="rounded-xl border border-gray-200 p-4">
@@ -248,7 +248,7 @@ export default function StrategicReportsDashboard({
                   <ul className="mt-2 list-disc space-y-1 pl-5">
                     <li><strong>Gasto mensual total:</strong> cuanto dinero se esta yendo cada mes. Sirve para dimensionar el problema.</li>
                     <li><strong>Promedio por usuario:</strong> cuanto gasta en promedio cada persona. Sirve para comparar grupos o periodos.</li>
-                    <li><strong>Oportunidad de ahorro (5 dias):</strong> dinero que aun puedes evitar si actuas antes del proximo cobro.</li>
+                    <li><strong>Proyeccion de gasto en riesgo (5 dias):</strong> estimado de lo que podria cobrarse pronto segun el comportamiento reciente (ultimos 30 dias).</li>
                   </ul>
                 </div>
 
@@ -258,7 +258,7 @@ export default function StrategicReportsDashboard({
                     <li><strong>Gasto mensual:</strong> cuanto se paga al mes en suscripciones activas.</li>
                     <li><strong>Promedio por usuario:</strong> cuanto paga en suscripciones cada usuario en promedio.</li>
                     <li><strong>Reduccion en suscripciones:</strong> cuanto bajo el gasto frente al periodo base. Es el KPI principal de la hipotesis.</li>
-                    <li><strong>Oportunidad de ahorro (5 dias):</strong> monto que se puede evitar si se actua antes de la renovacion.</li>
+                    <li><strong>Proyeccion de gasto en riesgo (5 dias):</strong> monto estimado que podria cobrarse pronto y que puede reducirse si se actua antes de renovar.</li>
                   </ul>
                 </div>
 
@@ -311,9 +311,9 @@ export default function StrategicReportsDashboard({
                 />
                 <SummaryCard
                   icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                  title="Oportunidad de ahorro (próximos 5 días)"
+                  title="Proyeccion de gasto en riesgo (5 dias)"
                   value={formatCurrency(summaryCards?.total_money_at_risk_5d || 0)}
-                  subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} items alertados`}
+                  subtitle={`${formatNumber(summaryCards?.risky_subscriptions || 0)} items estimados (patron 30 dias)`}
                   borderClass="border-red-500"
                 />
               </div>
@@ -345,15 +345,15 @@ export default function StrategicReportsDashboard({
                 />
                 <SummaryCard
                   icon={<ExclamationTriangleIcon className="h-7 w-7 text-red-600" />}
-                  title="Oportunidad de ahorro (próximos 5 días)"
+                  title="Proyeccion de gasto en riesgo (5 dias)"
                   value={formatCurrency(subscriptionsSummary?.total_money_at_risk_5d || 0)}
-                  subtitle={`${formatNumber(subscriptionsSummary?.risky_subscriptions || 0)} suscripciones ALTA/CRITICA`}
+                  subtitle={`${formatNumber(subscriptionsSummary?.risky_subscriptions || 0)} suscripciones estimadas ALTA/CRITICA`}
                   borderClass="border-red-500"
                 />
               </div>
 
               <div className="space-y-6">
-                <ChartCard title="Prioridad de ahorro por categoria (suscripciones)">
+                <ChartCard title="Prioridad por gasto en riesgo (suscripciones)">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={subscriptionsRisk}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -365,7 +365,7 @@ export default function StrategicReportsDashboard({
                         labelStyle={{ color: '#f8fafc', fontWeight: 700 }}
                       />
                       <Legend />
-                      <Bar name="Oportunidad de ahorro" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
+                      <Bar name="Monto proyectado en riesgo" dataKey="total_money_at_risk" fill="#ef4444" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartCard>
